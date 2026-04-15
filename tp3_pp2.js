@@ -5,12 +5,15 @@ class Usuario {
         this.email = email;
         this.password = password;
         this.es_corporativo = es_corporativo;
+        this.OrdenCompra = [];
     }
 }
 
 class OrdenCompra {
-    constructor (id_orden, total, fecha_compra, estado_compra) {
+    constructor (id_orden, usuario_id, cupon_id, total, fecha_compra, estado_compra) {
         this.id_orden = id_orden;
+        this.usuario_id = usuario_id;
+        this.cupon_id = cupon_id;
         this.total = total;
         this.fecha_compra = fecha_compra;
         this.estado_compra = estado_compra;
@@ -28,8 +31,9 @@ class Envio {
 }
 
 class Pago {
-    constructor (id_pago, estado_pago, metodo_pago, fecha_pago) {
+    constructor (id_pago, orden_id, estado_pago, metodo_pago, fecha_pago) {
         this.id_pago = id_pago;
+        this.orden_id = orden_id;
         this.estado_pago = estado_pago;
         this.metodo_pago = metodo_pago;
         this.fecha_pago = fecha_pago;
@@ -53,6 +57,7 @@ class DetalleOrden {
         this.producto_id = producto_id;
         this.cantidad = cantidad;
         this.precio_unitario = precio_unitario;
+        this.OrdenCompra = [];
     }
 }
 
