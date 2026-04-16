@@ -10,15 +10,41 @@ class Usuario {
 }
 
 class OrdenCompra {
-    constructor (id_orden, usuario_id, cupon_id, total, fecha_compra, estado_compra) {
+    constructor (id_orden, usuario_id, cupon_id, fecha_compra) {
         this.id_orden = id_orden;
         this.usuario_id = usuario_id;
         this.cupon_id = cupon_id;
-        this.total = total;
+        this.subtotal = 0;
+        this.descuentoMonto = 0;
+        this.total = 0;
         this.fecha_compra = fecha_compra;
-        this.estado_compra = estado_compra;
+        this.estado_compra = "Pendiente";
         this.DetalleOrden = [];
     }
+
+    agregarDetalle(detalle) {
+        this.DetalleOrden.push(detalle);
+    }
+
+    calcularTotal() {
+        // 1. Calcular Subtotal iterando el array de detalles
+        this.subtotal = this.detalles.reduce((acc, det) => acc + det.subtotal(), 0);
+
+        // 2. Aplicar Descuentos (Tu Regla de Negocio)
+        let porcentajeDescuento = 0;
+
+        if (this.usuario_id.esCorporativo) {
+            porcentajeDescuento = 10; // Regla: 10% si es corporativo
+        } else if (this.cupon_id && this.cupon_id.esValido()) {
+            porcentajeDescuento = this.cupon_id.descuento; // Regla: Cupón
+        }
+        this.descuentoMonto = this.subtotal * (porcentajeDescuento / 100);
+
+        // 3. Total Final
+        this.total = this.subtotal - this.descuentoMonto;
+        return this.total;
+    }
+
 }
 
 class Envio {
@@ -48,6 +74,11 @@ class Cupon {
         this.fecha_vencimiento = fecha_vencimiento;
         this.activo = activo;
     }
+
+    esValido() {
+        const hoy = new Date();
+        return this.activo && hoy < this.fecha_vencimiento;
+    }
 }
 
 class DetalleOrden {
@@ -58,6 +89,10 @@ class DetalleOrden {
         this.cantidad = cantidad;
         this.precio_unitario = precio_unitario;
     }
+
+    subtotal(){
+        return this.cantidad * this.precio_unitario;
+    }
 }
 
 class Producto {
@@ -66,6 +101,14 @@ class Producto {
         this.nombre = nombre;
         this.precio = precio;
         this.stock = stock;
+    }
+
+    hayStock(cantidadRequerida) {
+        return this.stock >= cantidadRequerida;
+    }
+
+    reducirStock(cantidad) {
+        this.stock -= cantidad;
     }
 }
 
