@@ -1,0 +1,111 @@
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f7f8fa;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 2rem;
+  color: #2d3748;
+}
+
+.compras-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 3rem auto;
+  max-width: 1200px;
+}
+
+.compra-section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(44, 62, 80, 0.07);
+  padding: 2rem 2rem 1rem 2rem;
+  flex: 1 1 0;
+  min-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.compra-section h2 {
+  margin-bottom: 1.5rem;
+  color: #4f8cff;
+  letter-spacing: 1px;
+}
+
+.ticket {
+  background: #f1f5fb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 1px 6px rgba(44, 62, 80, 0.04);
+}
+
+.ticket .label {
+  font-weight: 600;
+  color: #4f8cff;
+}
+
+.ticket .value {
+  color: #222;
+}
+
+.ticket .productos {
+  margin: 1rem 0;
+}
+
+.ticket .producto {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.ticket .producto-nombre {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.ticket .producto-cantidad {
+  color: #718096;
+}
+
+.ticket .producto-precio {
+  color: #38b2ac;
+  font-weight: 500;
+}
+
+.ticket .total {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #38b2ac;
+  margin-top: 1rem;
+}
+
+.ticket .descuento {
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.ticket .estado {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #718096;
+}
+
+.ticket .metodo {
+  color: #4f8cff;
+  font-size: 1rem;
+}
+
+.ticket .cancelada {
+  color: #e53e3e;
+  font-weight: bold;
+  margin-top: 1rem;
+}
