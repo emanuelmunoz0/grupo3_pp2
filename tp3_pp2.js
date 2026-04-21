@@ -39,12 +39,12 @@ function loguearUsuario(email, password) {
 }
 
 class OrdenCompra {
-    constructor(id_orden, fecha_compra) {
+    constructor(id_orden, usuario, cupon) {
         this.id_orden = id_orden;
-        this.usuario_id = Usuario;
-        this.cupon_id = Cupon;
+        this.usuario_id = usuario;
+        this.cupon_id = cupon;
         this.total = 0;
-        this.fecha_compra = new Date(fecha_compra);
+        this.fecha_compra = new Date;
         this.estado_compra = "Pendiente";
         this.DetalleOrden = [];
     }
@@ -71,6 +71,35 @@ class OrdenCompra {
         return this.total = subTotal - descuentoMonto;
     }
 
+}
+
+const ordenes_compras = {};
+
+function crearOrdenCompra(id_orden, id_usuario, id_cupon) {
+    let objetoUsuario = buscarUsuario(id_usuario);
+    let objetoCupon = buscarCupon(id_cupon);
+    let objetoOrdenCompra = new OrdenCompra(id_orden, objetoUsuario, objetoCupon);
+    ordenes_compras[objetoOrdenCompra.id_orden] = objetoOrdenCompra;
+    console.log(`✔️  Se creó una órden de compra satisfactoriamente`);
+}
+
+function agregarDetalleOrden(id_orden, id_detalle, id_producto, id_usuario) {
+    let objetoProducto = buscarProducto(id_producto);
+    let objetoCarrito = buscarCarrito(id_usuario);
+    let cantidad = 0;
+
+    for(let id in objetoCarrito.ItemCarrito) {
+        if (objetoCarrito.ItemCarrito[id].producto_id.id_producto == id_producto) {
+            cantidad = objetoCarrito.ItemCarrito[id].cantidad;
+            break;
+        }
+    }
+
+    let objetoDetalleOrden = new DetalleOrden(id_orden, id_detalle, objetoProducto, cantidad, objetoProducto.precio);
+
+    ordenes_compras[id_orden].DetalleOrden.push(objetoDetalleOrden);
+
+    console.log(`Se creó el detalle de la orden N°${id_detalle} dentro de la orden de compra N${id_orden}`);
 }
 
 class Envio {
@@ -124,11 +153,17 @@ function descuentoCupon(cupon_id) {
     if (cupon_id in lista_cupones) { return lista_cupones[cupon_id].descuento };
 }
 
+function buscarCupon(cupon_id) {
+    for (let id in lista_cupones) {
+        if (lista_cupones[id].id_cupon == cupon_id) { return lista_cupones[id] }
+    };
+}
+
 class DetalleOrden {
-    constructor(id_orden, id_detalle, cantidad, precio_unitario) {
+    constructor(id_orden, id_detalle, producto, cantidad, precio_unitario) {
         this.id_orden = id_orden;
         this.id_detalle = id_detalle;
-        this.producto_id = Producto;
+        this.producto_id = producto;
         this.cantidad = cantidad;
         this.precio_unitario = precio_unitario;
     }
@@ -165,7 +200,7 @@ function hayStockProducto(id_producto, cantidad) {
     if (producto && producto.stock >= cantidad) { return true; } else { return false; }
 }
 
-function restarStockProducto(id_producto, cantidad){
+function restarStockProducto(id_producto, cantidad) {
     lista_productos[id_producto].stock -= cantidad;
 }
 
@@ -201,6 +236,12 @@ class Carrito {
 
 const lista_carritos = {};
 
+function buscarCarrito(id_usuario) {
+    for (let id in lista_carritos) {
+        if (lista_carritos[id].usuario.id_usuario == id_usuario) { return lista_carritos[id]; }
+    }
+}
+
 function crearCarrito(id_carrito, id_usuario) {
     let usuario = buscarUsuario(id_usuario);
 
@@ -212,41 +253,40 @@ function crearCarrito(id_carrito, id_usuario) {
     } else { console.log(`Se produjo un error`); }
 }
 
-export {
-    // Usuarios
-    Usuario,
-    lista_usuarios,
-    registrarUsuario,
-    es_corporativoUsuario,
-    buscarUsuario,
-    loguearUsuario,
+/* CÓDIGO A EJECUTAR */
 
-    // Órdenes
-    OrdenCompra,
-    DetalleOrden,
+console.info(`🟠 CREAMOS UN USUARIO CORPORATIVO`);
+registrarUsuario(new Usuario(1 /*id_usuario*/, "Maria Pia Buono" /*nombre*/, "pia@gmail.com"/*mail*/, "password"/*password*/, true/*es_corporativo*/));
 
-    // Envío y pago
-    Envio,
-    Pago,
 
-    // Cupones
-    Cupon,
-    lista_cupones,
-    crearCupon,
-    validarCupon,
-    descuentoCupon,
+console.info(`🟠 CREAMOS EL CUPÓN PARA LOS USUARIOS NORMALES`);
+crearCupon(new Cupon(1/*id_cupon*/, "CUPON"/*nombre*/, 5/*descuento*/, "2026/10/12"/*fecha de vencimiento*/, true/*activo*/));
 
-    // Productos
-    Producto,
-    lista_productos,
-    crearProducto,
-    buscarProducto,
-    hayStockProducto,
-    restarStockProducto,
+console.info(`🟠 CREAMOS 5 PRODUCTOS`);
+crearProducto(new Producto(1 /*id_producto*/, "Cafetera Nescafé 230v Blanca Genio S Blanco" /*nombre*/, 179.999 /*precio*/, 5 /*stock*/));
+crearProducto(new Producto(2, "Ventilador Retractil De Techo 4 aspas Color Blanco", 113.149, 50));
+crearProducto(new Producto(3, "Perfume Liquid Brun French Avenue 100ml Edp Arabe Veoquiero", 82.081, 100));
+crearProducto(new Producto(4, "Samsung Galaxy A16 4g 128gb 4 Gb Ram Negro", 257.699, 150));
+crearProducto(new Producto(5, "Colchón KL-Eterna Känn Livet 2 Plazas", 308.999, 200));
 
-    // Carrito
-    ItemCarrito,
-    Carrito,
-    lista_carritos,
-    crearCarrito
-};
+console.info(`🟠 BUSCAMOS UN PRODUCTO`);
+console.table(buscarProducto(4 /*id_producto*/));
+
+console.info(`🟠 CREAMOS EL CARRITO`);
+crearCarrito(1 /*id_carrito*/, 1 /*id_usuario*/);
+
+console.info(`🟠 AGREGAMOS ITEMS AL CARRITO`);
+lista_carritos[1].agregarProducto(1/*id_producto*/, 2 /*cantidad*/, 1 /*id_item*/);
+lista_carritos[1].agregarProducto(1, 40, 2);
+
+console.info(`🟠 VAMOS AL CARRITO`);
+console.log(lista_carritos[2]);
+
+console.info(`🟠 HACEMOS LOGIN`);
+loguearUsuario("pia@gmail.com", "password");
+
+console.info(`🟠 CREAMOS ORDEN DE COMPRA`);
+crearOrdenCompra(1/*id_orden*/, 1/*id_usuario*/, 1/*id_cupon*/);
+
+console.info(`🟠 AGREGAR DETALLES ORDENES A LA ORDEN DE COMPRA`);
+console.log(`En proceso de construcción...`)
