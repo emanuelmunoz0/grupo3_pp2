@@ -6,21 +6,104 @@
  <title>Mi E-Commerce</title>
  <!-- Link a Bootstrap 5 (CDN) -->
  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+ <!-- Bootstrap Icons -->
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+ <style>
+   body {
+     background-color: #f5f7fa;
+     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   }
+   
+   .navbar {
+     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+   }
+   
+   .catalog-header {
+     margin-bottom: 2rem;
+   }
+   
+   .catalog-header h2 {
+     color: #2c3e50;
+     font-weight: 700;
+     border-bottom: 3px solid #007bff;
+     padding-bottom: 0.5rem;
+     display: inline-block;
+   }
+   
+   .card {
+     border-radius: 10px;
+     overflow: hidden;
+     transition: all 0.3s ease;
+   }
+   
+   .card:hover {
+     box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+   }
+   
+   .card-img-top {
+     object-fit: cover;
+     background-color: #f0f0f0;
+   }
+   
+   .card-title {
+     font-size: 0.95rem;
+     color: #2c3e50;
+     min-height: 2.5rem;
+     line-height: 1.2;
+   }
+   
+   .card-footer {
+     padding: 1rem;
+   }
+   
+   .btn-primary {
+     background-color: #007bff;
+     border-color: #007bff;
+     font-weight: 600;
+     border-radius: 6px;
+     transition: all 0.3s ease;
+   }
+   
+   .btn-primary:hover {
+     background-color: #0056b3;
+     border-color: #0056b3;
+     transform: scale(1.02);
+   }
+   
+   .badge {
+     font-size: 0.75rem;
+     font-weight: 600;
+     padding: 0.4rem 0.6rem;
+   }
+   
+   @media (max-width: 768px) {
+     .catalog-header h2 {
+       font-size: 1.5rem;
+     }
+     
+     .card-title {
+       font-size: 0.85rem;
+     }
+   }
+ </style>
 </head>
 <body class="bg-light">
  <!-- Barra de Navegación -->
  <nav class="navbar navbar-dark bg-dark">
  <div class="container-fluid">
- <span class="navbar-brand mb-0 h1">NeoData Shop</span>
+ <span class="navbar-brand mb-0 h1">🛍️ NeoData Shop</span>
  <button class="btn btn-outline-light">
- 🛒Carrito (<span id="cart-count">0</span>)
+ 🛒 Carrito (<span id="cart-count">0</span>)
  </button>
  </div>
  </nav>
+ 
  <!-- Contenedor Principal -->
- <div class="container mt-5" id="app">
- <h2>Catálogo de Productos</h2>
- <div class="row mt-4" id="catalogo">
+ <div class="container mt-5 mb-5" id="app">
+ <div class="catalog-header">
+   <h2>Catálogo de Productos</h2>
+ </div>
+ <div class="row g-4" id="catalogo">
  </div>
  </div>
  <!-- Link a nuestra lógica de JavaScript (Para la Actividad 2) -->

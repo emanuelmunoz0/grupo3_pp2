@@ -10,17 +10,47 @@ crearProducto(new Producto(5, "Colchón KL-Eterna Känn Livet 2 Plazas", 308.999
 
 Object.values(lista_productos).forEach((producto) => {
     const container = document.getElementById("catalogo");
+    const colDiv = document.createElement("div");
+    colDiv.classList.add("col-12", "col-sm-6", "col-md-4", "col-lg-3");
+    
     const card = document.createElement("div");
-    card.classList.add("card", "mb-4");
+    card.classList.add("card", "h-100", "shadow-sm", "border-0", "transition-card");
+    card.style.cssText = "transition: transform 0.3s, box-shadow 0.3s; cursor: pointer;";
+    
+    card.addEventListener("mouseenter", () => {
+        card.style.transform = "translateY(-5px)";
+        card.classList.add("shadow");
+    });
+    
+    card.addEventListener("mouseleave", () => {
+        card.style.transform = "translateY(0)";
+        card.classList.remove("shadow");
+    });
+    
     card.innerHTML = `
-      <div class="card-body">
-        <img src="${producto.img}" class="card-img-top" style="width: 200px; height: auto;" alt="${producto.nombre}">
-        <h5 class="card-title">${producto.nombre}</h5>
-        <p class="card-text">Precio: $${producto.precio}</p>
-        <p class="card-text">Stock: ${producto.stock}</p>  
-         <span class="badge bg-danger">10% OFF</span>
-        <button class="btn btn-primary">Agregar al carrito</button>
+      <div class="position-relative overflow-hidden" style="height: 250px; background: #f8f9fa;">
+        <img src="${producto.img}" class="card-img-top w-100 h-100 object-fit-cover" alt="${producto.nombre}">
+        ${producto.stock < 20 ? '<span class="badge bg-warning position-absolute top-0 end-0 m-2">Últimas unidades</span>' : '<span class="badge bg-success position-absolute top-0 end-0 m-2">En stock</span>'}
       </div>
-        `;
-    container.appendChild(card);
+      <div class="card-body d-flex flex-column">
+        <h6 class="card-title fw-bold text-truncate" title="${producto.nombre}">${producto.nombre}</h6>
+        <p class="card-text text-muted small mb-3" style="flex-grow: 1; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+          Stock disponible: ${producto.stock} unidades
+        </p>
+        <div class="mb-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="h5 mb-0 text-primary fw-bold">$${producto.precio.toLocaleString()}</span>
+            <span class="badge bg-danger">10% OFF</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-top-0">
+        <button class="btn btn-primary w-100 btn-sm fw-bold">
+          <i class="bi bi-cart-plus"></i> Agregar al carrito
+        </button>
+      </div>
+    `;
+    
+    colDiv.appendChild(card);
+    container.appendChild(colDiv);
 })
