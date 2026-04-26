@@ -1,138 +1,180 @@
-# Resumen del Sistema de Simulación de Compras
+# 🛒 Sistema de Compras en JavaScript
 
-Este sistema simula el proceso de compra en una tienda online, incluyendo usuarios, productos, carritos, cupones, órdenes de compra, pagos y envíos. El flujo completo se puede visualizar tanto por consola (Node.js) como en una interfaz HTML alternativa.
-
-## Clases Principales
-
-### Usuario
-
-- **Atributos:** `id_usuario`, `nombre`, `email`, `password`, `es_corporativo`, `OrdenCompra` (array de órdenes asociadas)
-- **Instanciación:**
-  ```js
-  new Usuario(id, nombre, email, password, es_corporativo);
-  ```
-
-### Producto
-
-- **Atributos:** `id_producto`, `nombre`, `precio`, `stock`
-- **Instanciación:**
-  ```js
-  new Producto(id, nombre, precio, stock);
-  ```
-
-### Cupon
-
-- **Atributos:** `id_cupon`, `nombre`, `descuento` (decimal), `fecha_vencimiento` (Date), `activo`
-- **Instanciación:**
-  ```js
-  new Cupon(id, nombre, descuento, fecha_vencimiento, activo);
-  ```
-
-### Carrito
-
-- **Atributos:** `id_carrito`, `usuario`, `ItemCarrito` (array de ítems)
-- **Instanciación:**
-  ```js
-  new Carrito(id_carrito, usuario);
-  ```
-- **Método:**
-  - `agregarProducto(id_producto, cantidad, id_item)`
-
-### ItemCarrito
-
-- **Atributos:** `id_carrito`, `id_item`, `producto_id` (objeto Producto), `cantidad`
-- **Instanciación:**
-  ```js
-  new ItemCarrito(id_carrito, id_item, producto, cantidad);
-  ```
-
-### OrdenCompra
-
-- **Atributos:** `id_orden`, `usuario_id`, `cupon_id`, `total`, `fecha_compra`, `estado_compra`, `DetalleOrden` (array)
-- **Instanciación:**
-  ```js
-  new OrdenCompra(id_orden, fecha_compra);
-  ```
-- **Métodos:**
-  - `agregarDetalle(detalle)`
-  - `calcularTotal()`
-
-### DetalleOrden
-
-- **Atributos:** `id_orden`, `id_detalle`, `producto_id`, `cantidad`, `precio_unitario`
-- **Instanciación:**
-  ```js
-  new DetalleOrden(id_orden, id_detalle, cantidad, precio_unitario);
-  ```
-- **Método:**
-  - `subtotalDetalleOrden()`
-
-### Envio
-
-- **Atributos:** `id_envio`, `orden_id`, `estado_envio`, `fecha_envio`
-- **Instanciación:**
-  ```js
-  new Envio(id_envio, orden_id, estado_envio, fecha_envio);
-  ```
-
-### Pago
-
-- **Atributos:** `id_pago`, `orden_id`, `estado_pago`, `metodo_pago`, `fecha_pago`
-- **Instanciación:**
-  ```js
-  new Pago(id_pago, orden_id, estado_pago, metodo_pago, fecha_pago);
-  ```
-
-## Funciones Principales
-
-- **Usuarios:**
-  - `registrarUsuario(usuario)`
-  - `loguearUsuario(email, password)`
-  - `cerrarSesion()`
-  - `es_corporativoUsuario(usuario_id)`
-  - `buscarUsuario(id_usuario)`
-
-- **Productos:**
-  - `crearProducto(producto)`
-  - `buscarProducto(id_producto)`
-  - `hayStockProducto(id_producto, cantidad)`
-  - `restarStockProducto(id_producto, cantidad)`
-
-- **Cupones:**
-  - `crearCupon(cupon)`
-  - `validarCupon(cupon_id)`
-  - `descuentoCupon(cupon_id)`
-
-- **Carrito:**
-  - `crearCarrito(id_carrito, id_usuario)`
-
-- **Checkout y compra:**
-  - `verificarStockCarrito(id_carrito)`
-  - `verificarSesion()`
-  - `ingresarDatosEnvio(datosEnvio)`
-  - `generarOrden(id_carrito, cupon_id)`
-  - `seleccionarMetodoPago(metodoPago)`
-  - `procesarPago(orden, metodoPago, pagoAprobado)`
-  - `emitirTicket(orden, pago, envio)`
-  - `enviarMailConfirmacion(orden)`
-  - `simularCompra(id_carrito, cupon_id, datosEnvio, metodoPago, pagoAprobado)`
-
-## Simulación de Compra
-
-El archivo `main.js` ejecuta el flujo completo:
-
-1. Crea usuarios (corporativo y normal).
-2. Crea un cupón y productos.
-3. Crea carritos y agrega productos.
-4. Simula dos compras:
-   - **Compra 1:** Usuario corporativo, pago aprobado, muestra ticket y mail de confirmación.
-   - **Compra 2:** Usuario normal con cupón, pago rechazado, muestra mensaje de cancelación y opción de reintentar pago.
-
-## Visualización
-
-- Por consola: Todo el proceso se muestra paso a paso.
-- En HTML: Alternativamente, el proceso se visualiza en dos columnas (aprobada/rechazada) en `view/index.html` usando estilos modernos y minimalistas.
+Este proyecto es una simulación completa de un sistema de e-commerce desarrollado en JavaScript puro. Incluye usuarios, productos, carritos, cupones, órdenes de compra, pagos y envío.
 
 ---
 
-Este resumen refleja fielmente la estructura y funcionamiento del código proporcionado, sin agregar ni omitir información relevante del sistema.
+# 📦 1. ¿Qué hace este sistema?
+
+Permite simular todo el flujo de una compra online:
+
+* 👤 Registro y login de usuarios
+* 🛍️ Creación de productos
+* 🧺 Gestión de carritos
+* 🎟️ Aplicación de cupones o descuentos corporativos
+* 🧾 Generación de órdenes de compra
+* 💳 Procesamiento de pagos
+* 🚚 Simulación de envío
+* 📧 Envío de confirmación por mail
+
+---
+
+# 🧠 2. Arquitectura general
+
+El sistema está dividido en 8 bloques principales:
+
+## 🧱 1. Entidades (Clases)
+
+Representan los objetos principales del sistema:
+
+* Usuario 👤
+* Producto 📦
+* Carrito 🛒
+* ItemCarrito 🧺
+* OrdenCompra 🧾
+* DetalleOrden 📋
+* Cupon 🎟️
+* Pago 💳
+* Envio 🚚
+
+---
+
+## 🗄️ 2. Base de datos en memoria
+
+El sistema no usa base de datos real, sino objetos en memoria:
+
+* lista_usuarios 👤
+* lista_productos 📦
+* lista_carritos 🛒
+* lista_cupones 🎟️
+* sesion 🔐
+
+---
+
+## 👤 3. Gestión de usuarios
+
+Funciones principales:
+
+* registrarUsuario() ➕
+* loguearUsuario() 🔐
+* cerrarSesion() 🚪
+* estaLogueado() ✔️
+
+También permite distinguir usuarios corporativos.
+
+---
+
+## 🎟️ 4. Cupones
+
+Permiten aplicar descuentos:
+
+* crearCupon() ➕
+* validarCupon() ✔️
+* descuentoCupon() 💰
+
+⏳ Los cupones tienen fecha de vencimiento.
+
+---
+
+## 📦 5. Productos
+
+Gestión del catálogo:
+
+* crearProducto() ➕
+* buscarProducto() 🔍
+* control de stock 📉
+
+---
+
+## 🧺 6. Carrito de compras
+
+Permite agregar productos antes de comprar:
+
+* crearCarrito() 🛒
+* agregarProducto() ➕
+* control de stock automático
+
+---
+
+## 🧾 7. Checkout (proceso de compra)
+
+Flujo completo de compra:
+
+1. 🔎 verificarStockCarrito()
+2. 🔐 verificarSesion()
+3. 🚚 ingresarDatosEnvio()
+4. 🧾 generarOrden()
+5. 💳 seleccionarMetodoPago()
+6. 💰 procesarPago()
+7. 🧾 emitirTicket()
+8. 📧 enviarMailConfirmacion()
+
+---
+
+## 💳 8. Pagos y envío
+
+* Pago: estado (Pendiente / Aprobado / Rechazado)
+* Envio: estado del pedido (Pendiente / En preparación)
+
+---
+
+# 🎯 3. Reglas de negocio
+
+✔️ Usuario corporativo → 10% de descuento
+
+🎟️ Usuario normal → usa cupón si es válido
+
+❌ Si el pago falla → la compra se cancela
+
+---
+
+# 🧪 4. Simulación incluida
+
+El sistema incluye 2 escenarios:
+
+## 🟠 Compra 1 — Usuario corporativo
+
+* Maria Pia 👩‍💼
+* 10% de descuento automático
+* Pago aprobado ✔️
+
+## 🟠 Compra 2 — Usuario normal
+
+* Ludmila 👩
+* Cupón 5% 🎟️
+* Pago rechazado ❌
+
+---
+
+# ⚙️ 5. Conceptos clave que usa el proyecto
+
+* Programación orientada a objetos 🧱
+* Manejo de estado en memoria 🧠
+* Flujo de checkout paso a paso 🔄
+* Simulación de sistema real de e-commerce 🛍️
+
+---
+
+# 🚀 6. Objetivo del proyecto
+
+Este proyecto busca simular un sistema real de compras online para practicar:
+
+* lógica de negocio
+* estructuras de datos
+* flujo de sistemas reales
+* programación modular
+
+---
+
+# 🧩 7. Posibles mejoras
+
+* Persistencia con base de datos real 🗄️
+* API REST 🌐
+* Frontend con React ⚛️
+* Autenticación con JWT 🔐
+
+---
+
+# 🧠 Autores
+
+Maria Pia Buono, Ludmila Sánchez Rufanacht, Graciela Vargas Guerrieri, Rodrigo Emanuel Gomez Muñoz y Diego Romero.

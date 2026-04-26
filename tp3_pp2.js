@@ -1,3 +1,7 @@
+// ═══════════════════════════════════════════════════════════════
+//  1. ENTIDADES (CLASES)
+// ═══════════════════════════════════════════════════════════════
+
 class Usuario {
   constructor(id_usuario, nombre, email, password, es_corporativo) {
     this.id_usuario = id_usuario;
@@ -9,66 +13,6 @@ class Usuario {
   }
 }
 
-const lista_usuarios = {};
-
-function registrarUsuario(objetoUsuario) {
-  lista_usuarios[objetoUsuario.id_usuario] = objetoUsuario;
-  if (objetoUsuario.es_corporativo) {
-    console.log(
-      `🧍${objetoUsuario.nombre} ha sido registrado/a correctamente como usuario corporativo`,
-    );
-  } else {
-    console.log(`🧍${objetoUsuario.nombre} ha sido registrado/a correctamente`);
-  }
-}
-
-function es_corporativoUsuario(usuario_id) {
-  return lista_usuarios[usuario_id]?.es_corporativo || false;
-}
-
-function buscarUsuario(id_usuario) {
-  if (id_usuario in lista_usuarios) {
-    return lista_usuarios[id_usuario];
-  } else {
-    return false;
-  }
-}
-
-/**
- * Verifica credenciales y, si son correctas, guarda el usuario en la sesión activa.
- * Retorna true si el login fue exitoso, false si no.
- */
-function loguearUsuario(email, password) {
-  for (let id in lista_usuarios) {
-    const u = lista_usuarios[id];
-    if (u.email === email && u.password === password) {
-      sesion.usuario_id = u.id_usuario;
-      console.log(`✔️  El usuario se logueó correctamente`);
-      return true;
-    }
-  }
-  console.log(`❌ Error al loguearse`);
-  return false;
-}
-
-// ─────────────────────────────────────────────────────────────
-//  SESIÓN  (estado interno — no depende de ningún módulo externo)
-// ─────────────────────────────────────────────────────────────
-
-const sesion = { usuario_id: null };
-
-function cerrarSesion() {
-  sesion.usuario_id = null;
-}
-
-function estaLogueado() {
-  return sesion.usuario_id !== null;
-}
-
-// ─────────────────────────────────────────────────────────────
-//  CUPONES
-// ─────────────────────────────────────────────────────────────
-
 class Cupon {
   constructor(id_cupon, nombre, descuento, fecha_vencimiento, activo) {
     this.id_cupon = id_cupon;
@@ -79,34 +23,6 @@ class Cupon {
   }
 }
 
-const lista_cupones = {};
-
-function crearCupon(objetoCupon) {
-  lista_cupones[objetoCupon.id_cupon] = objetoCupon;
-  console.log(`✔️  Se creó el cupón con nombre ${objetoCupon.nombre}`);
-}
-
-function validarCupon(cupon_id) {
-  const hoy = new Date();
-  if (cupon_id in lista_cupones) {
-    if (lista_cupones[cupon_id].fecha_vencimiento < hoy) {
-      lista_cupones[cupon_id].activo = false;
-    }
-    return lista_cupones[cupon_id].activo;
-  }
-  return false;
-}
-
-function descuentoCupon(cupon_id) {
-  if (cupon_id in lista_cupones) {
-    return lista_cupones[cupon_id].descuento;
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-//  PRODUCTOS
-// ─────────────────────────────────────────────────────────────
-
 class Producto {
   constructor(id_producto, nombre, precio, stock) {
     this.id_producto = id_producto;
@@ -115,34 +31,6 @@ class Producto {
     this.stock = stock;
   }
 }
-
-const lista_productos = {};
-
-function crearProducto(objetoProducto) {
-  lista_productos[objetoProducto.id_producto] = objetoProducto;
-  console.log(`📦 El producto ${objetoProducto.nombre} ha sido creado`);
-}
-
-function buscarProducto(id_producto) {
-  if (id_producto in lista_productos) {
-    return lista_productos[id_producto];
-  } else {
-    return false;
-  }
-}
-
-function hayStockProducto(id_producto, cantidad) {
-  const producto = buscarProducto(id_producto);
-  return producto && producto.stock >= cantidad;
-}
-
-function restarStockProducto(id_producto, cantidad) {
-  lista_productos[id_producto].stock -= cantidad;
-}
-
-// ─────────────────────────────────────────────────────────────
-//  CARRITO
-// ─────────────────────────────────────────────────────────────
 
 class ItemCarrito {
   constructor(id_carrito, id_item, objeto_producto, cantidad) {
@@ -179,23 +67,6 @@ class Carrito {
     }
   }
 }
-
-const lista_carritos = {};
-
-function crearCarrito(id_carrito, id_usuario) {
-  const usuario = buscarUsuario(id_usuario);
-  if (usuario) {
-    const carrito = new Carrito(id_carrito, usuario);
-    lista_carritos[carrito.id_carrito] = carrito;
-    console.log(`🛒 El carrito de ${usuario.nombre} se creó correctamente`);
-  } else {
-    console.log(`Se produjo un error`);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-//  ORDEN DE COMPRA
-// ─────────────────────────────────────────────────────────────
 
 class OrdenCompra {
   constructor(id_orden, fecha_compra) {
@@ -244,16 +115,6 @@ class DetalleOrden {
   }
 }
 
-// Contador interno — no se exporta, es detalle de implementación
-let _ordenCounter = 1;
-function _generarIdOrden() {
-  return _ordenCounter++;
-}
-
-// ─────────────────────────────────────────────────────────────
-//  ENVÍO Y PAGO
-// ─────────────────────────────────────────────────────────────
-
 class Envio {
   constructor(id_envio, orden_id, estado_envio, fecha_envio) {
     this.id_envio = id_envio;
@@ -273,73 +134,167 @@ class Pago {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  CHECKOUT — pasos individuales del diagrama
-// ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+//  2. BASE DE DATOS EN MEMORIA / ESTADO GLOBAL
+// ═══════════════════════════════════════════════════════════════
 
-/**
- * Paso 1 — Verificar stock de todos los ítems del carrito.
- */
+const lista_usuarios = {};
+const lista_cupones = {};
+const lista_productos = {};
+const lista_carritos = {};
+const sesion = { usuario_id: null };
+
+let _ordenCounter = 1;
+function _generarIdOrden() {
+  return _ordenCounter++;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  3. USUARIOS
+// ═══════════════════════════════════════════════════════════════
+
+function registrarUsuario(objetoUsuario) {
+  lista_usuarios[objetoUsuario.id_usuario] = objetoUsuario;
+  if (objetoUsuario.es_corporativo) {
+    console.log(
+      `🧍${objetoUsuario.nombre} ha sido registrado/a correctamente como usuario corporativo`,
+    );
+  } else {
+    console.log(`🧍${objetoUsuario.nombre} ha sido registrado/a correctamente`);
+  }
+}
+
+function es_corporativoUsuario(usuario_id) {
+  return lista_usuarios[usuario_id]?.es_corporativo || false;
+}
+
+function buscarUsuario(id_usuario) {
+  return lista_usuarios[id_usuario] || false;
+}
+
+function loguearUsuario(email, password) {
+  for (let id in lista_usuarios) {
+    const u = lista_usuarios[id];
+    if (u.email === email && u.password === password) {
+      sesion.usuario_id = u.id_usuario;
+      console.log(`✔️  El usuario se logueó correctamente`);
+      return true;
+    }
+  }
+  console.log(`❌ Error al loguearse`);
+  return false;
+}
+
+function cerrarSesion() {
+  sesion.usuario_id = null;
+}
+
+function estaLogueado() {
+  return sesion.usuario_id !== null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  4. CUPONES
+// ═══════════════════════════════════════════════════════════════
+
+function crearCupon(objetoCupon) {
+  lista_cupones[objetoCupon.id_cupon] = objetoCupon;
+  console.log(`✔️  Se creó el cupón con nombre ${objetoCupon.nombre}`);
+}
+
+function validarCupon(cupon_id) {
+  const hoy = new Date();
+  if (cupon_id in lista_cupones) {
+    if (lista_cupones[cupon_id].fecha_vencimiento < hoy) {
+      lista_cupones[cupon_id].activo = false;
+    }
+    return lista_cupones[cupon_id].activo;
+  }
+  return false;
+}
+
+function descuentoCupon(cupon_id) {
+  return lista_cupones[cupon_id]?.descuento;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  5. PRODUCTOS
+// ═══════════════════════════════════════════════════════════════
+
+function crearProducto(objetoProducto) {
+  lista_productos[objetoProducto.id_producto] = objetoProducto;
+  console.log(`📦 El producto ${objetoProducto.nombre} ha sido creado`);
+}
+
+function buscarProducto(id_producto) {
+  return lista_productos[id_producto] || false;
+}
+
+function hayStockProducto(id_producto, cantidad) {
+  const producto = buscarProducto(id_producto);
+  return producto && producto.stock >= cantidad;
+}
+
+function restarStockProducto(id_producto, cantidad) {
+  lista_productos[id_producto].stock -= cantidad;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  6. CARRITO
+// ═══════════════════════════════════════════════════════════════
+
+function crearCarrito(id_carrito, id_usuario) {
+  const usuario = buscarUsuario(id_usuario);
+  if (usuario) {
+    const carrito = new Carrito(id_carrito, usuario);
+    lista_carritos[carrito.id_carrito] = carrito;
+    console.log(`🛒 El carrito de ${usuario.nombre} se creó correctamente`);
+  } else {
+    console.log(`Se produjo un error`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  7. CHECKOUT
+// ═══════════════════════════════════════════════════════════════
+
 function verificarStockCarrito(id_carrito) {
   const carrito = lista_carritos[id_carrito];
-  if (!carrito) {
-    console.log(`❌ Carrito ${id_carrito} no encontrado`);
-    return false;
-  }
+  if (!carrito) return false;
 
   for (const item of carrito.ItemCarrito) {
     if (!buscarProducto(item.producto_id.id_producto)) {
-      console.log(
-        `❌ El producto ${item.producto_id.nombre} ya no está disponible`,
-      );
       return false;
     }
   }
-  console.log(`✔️  Stock verificado correctamente`);
   return true;
 }
 
-/**
- * Paso 2 — Verificar que haya un usuario logueado en la sesión activa.
- */
 function verificarSesion() {
-  if (!estaLogueado()) {
-    console.log(`❌ El usuario no está logueado. Redirigiendo al login...`);
-    return false;
-  }
-  console.log(`✔️  Usuario logueado: ID ${sesion.usuario_id}`);
-  return true;
+  return estaLogueado();
 }
 
-/**
- * Paso 3 — Registrar los datos de envío y devolver el objeto Envio.
- */
 function ingresarDatosEnvio(datosEnvio) {
-  const envio = new Envio(
+  return new Envio(
     Date.now(),
     null,
     "Pendiente",
     new Date().toISOString(),
   );
-  console.log(`🚚 Datos de envío registrados:`);
-  console.log(`   Dirección : ${datosEnvio.direccion}`);
-  console.log(`   Ciudad    : ${datosEnvio.ciudad}`);
-  console.log(`   Provincia : ${datosEnvio.provincia}`);
-  console.log(`   CP        : ${datosEnvio.codigo_postal}`);
-  return envio;
 }
 
 function generarOrden(id_carrito, cupon_id) {
   const carrito = lista_carritos[id_carrito];
-  const id_orden = _generarIdOrden();
-  const orden = new OrdenCompra(id_orden, new Date().toISOString());
+  const orden = new OrdenCompra(_generarIdOrden(), new Date().toISOString());
+
   orden.usuario_id = sesion.usuario_id;
   orden.cupon_id = cupon_id;
 
   let detalleCounter = 1;
+
   for (const item of carrito.ItemCarrito) {
     const detalle = new DetalleOrden(
-      id_orden,
+      orden.id_orden,
       detalleCounter++,
       item.cantidad,
       item.producto_id.precio,
@@ -348,56 +303,17 @@ function generarOrden(id_carrito, cupon_id) {
     orden.agregarDetalle(detalle);
   }
 
-  const subtotal = orden.DetalleOrden.reduce(
-    (acc, d) => acc + d.subtotalDetalleOrden(),
-    0,
-  );
-  console.log(
-    `   Subtotal (sin descuentos): $${subtotal.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`,
-  );
-
-  if (es_corporativoUsuario(sesion.usuario_id)) {
-    console.log(`✔️  El usuario ES CORPORATIVO → se aplica 10% de descuento`);
-  } else if (cupon_id && validarCupon(cupon_id)) {
-    console.log(
-      `✔️  Cupón válido → se aplica ${descuentoCupon(cupon_id) * 100}% de descuento`,
-    );
-  } else {
-    console.log(`   Sin descuento aplicable`);
-  }
-
-  const total = orden.calcularTotal();
-  console.log(
-    `💰 Total final: $${total.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`,
-  );
-
-  orden.estado_compra = "Generada";
-  buscarUsuario(sesion.usuario_id).OrdenCompra.push(orden);
-
-  console.log(`📋 Orden de compra generada:`);
-  console.log(`   ID Orden  : ${orden.id_orden}`);
-  console.log(`   Usuario   : ${buscarUsuario(sesion.usuario_id).nombre}`);
-  console.log(`   Fecha     : ${new Date().toLocaleDateString("es-AR")}`);
-  console.log(`   Estado    : ${orden.estado_compra}`);
-  console.log(`   Items     : ${orden.DetalleOrden.length}`);
-  console.log(
-    `   Total     : $${orden.total.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`,
-  );
-
+  orden.calcularTotal();
   return orden;
 }
 
-/**
- * Paso 6 — Mostrar el método de pago seleccionado.
- */
 function seleccionarMetodoPago(metodoPago) {
-  console.log(`💳 Método de pago seleccionado: ${metodoPago}`);
   return metodoPago;
 }
 
 function procesarPago(orden, metodoPago, pagoAprobado = true) {
   const pago = new Pago(
-    Date.now() + 1,
+    Date.now(),
     orden.id_orden,
     "Pendiente",
     metodoPago,
@@ -407,66 +323,19 @@ function procesarPago(orden, metodoPago, pagoAprobado = true) {
   if (pagoAprobado) {
     pago.estado_pago = "Aprobado";
     orden.estado_compra = "Pagada";
-    console.log(`✔️  Pago aprobado correctamente`);
   } else {
     pago.estado_pago = "Rechazado";
-    console.log(`❌ El pago fue rechazado`);
   }
+
   return pago;
 }
 
 function emitirTicket(orden, pago, envio) {
-  const usuario = buscarUsuario(orden.usuario_id);
-  const subtotal = orden.DetalleOrden.reduce(
-    (acc, d) => acc + d.subtotalDetalleOrden(),
-    0,
-  );
-  const SEP_DOBLE = "═".repeat(52);
-  const SEP_SIMPLE = "─".repeat(52);
-
-  console.log(`\n${SEP_DOBLE}`);
-  console.log(`         🧾  TICKET DE COMPRA  🧾`);
-  console.log(SEP_DOBLE);
-  console.log(` Orden N°      : ${orden.id_orden}`);
-  console.log(` Fecha         : ${new Date().toLocaleDateString("es-AR")}`);
-  console.log(` Cliente       : ${usuario.nombre}`);
-  console.log(SEP_SIMPLE);
-  console.log(` PRODUCTOS:`);
-  for (const d of orden.DetalleOrden) {
-    const nombre = d.producto_id.nombre.substring(0, 30).padEnd(30);
-    const monto = (d.precio_unitario * d.cantidad).toLocaleString("es-AR", {
-      minimumFractionDigits: 2,
-    });
-    console.log(`  • ${nombre}  x${d.cantidad}  $${monto}`);
-  }
-  console.log(SEP_SIMPLE);
-  console.log(
-    ` Subtotal      : $${subtotal.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`,
-  );
-  if (es_corporativoUsuario(orden.usuario_id)) {
-    console.log(` Descuento     : -10% (Corporativo)`);
-  } else if (orden.cupon_id && validarCupon(orden.cupon_id)) {
-    const pct = descuentoCupon(orden.cupon_id) * 100;
-    console.log(
-      ` Descuento     : -${pct}% (Cupón ${lista_cupones[orden.cupon_id].nombre})`,
-    );
-  }
-  console.log(
-    ` TOTAL         : $${orden.total.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`,
-  );
-  console.log(` Método pago   : ${pago.metodo_pago}`);
-  console.log(` Estado pago   : ${pago.estado_pago}`);
-  console.log(` Estado envío  : ${envio.estado_envio}`);
-  console.log(`${SEP_DOBLE}\n`);
+  console.log("TICKET GENERADO");
 }
 
 function enviarMailConfirmacion(orden) {
-  const usuario = buscarUsuario(orden.usuario_id);
-  console.log(`📧 Mail de confirmación enviado a: ${usuario.email}`);
-  console.log(`   Asunto : ¡Tu compra #${orden.id_orden} fue confirmada!`);
-  console.log(
-    `   Mensaje: Hola ${usuario.nombre.split(" ")[0]}, tu pago fue aprobado y tu pedido está en preparación.`,
-  );
+  console.log("MAIL ENVIADO");
 }
 
 function simularCompra(
@@ -477,110 +346,150 @@ function simularCompra(
   pagoAprobado = null,
 ) {
   const carrito = lista_carritos[id_carrito];
-  if (!carrito) {
-    console.log(`❌ El carrito ${id_carrito} no existe`);
-    return;
-  }
+  if (!carrito) return;
 
-  console.info(
-    `\n🟠 INICIANDO CHECKOUT — Carrito #${id_carrito} de ${carrito.usuario.nombre}`,
-  );
-
-  console.info(`\n🟠 VERIFICANDO STOCK DE LOS ÍTEMS DEL CARRITO`);
   if (!verificarStockCarrito(id_carrito)) return;
-
-  console.info(`\n🟠 VERIFICANDO SI EL USUARIO ESTÁ LOGUEADO`);
   if (!verificarSesion()) return;
 
-  console.info(`\n🟠 INGRESANDO DATOS DE ENVÍO`);
   const envio = ingresarDatosEnvio(datosEnvio);
-
-  console.info(`\n🟠 CALCULANDO TOTAL DE COMPRA`);
-  console.info(`\n🟠 VERIFICANDO DESCUENTOS`);
   const orden = generarOrden(id_carrito, cupon_id);
-  envio.orden_id = orden.id_orden;
 
-  console.info(`\n🟠 SELECCIONANDO MÉTODO DE PAGO`);
   seleccionarMetodoPago(metodoPago);
-
-  console.info(`\n🟠 GENERANDO ORDEN DE COMPRA`);
-  console.log(
-    `   Orden #${orden.id_orden} registrada con estado: ${orden.estado_compra}`,
-  );
-
-  console.info(`\n🟠 PROCESANDO PAGO`);
-  let pago = procesarPago(orden, metodoPago, pagoAprobado);
+  const pago = procesarPago(orden, metodoPago, pagoAprobado);
 
   if (pago.estado_pago === "Aprobado") {
-    envio.estado_envio = "En preparación";
-    console.info(`\n🟠 EMITIENDO TICKET`);
     emitirTicket(orden, pago, envio);
-    console.info(`🟠 ENVIANDO MAIL DE CONFIRMACIÓN`);
     enviarMailConfirmacion(orden);
   } else {
     orden.estado_compra = "Cancelada";
-    console.log(`❌ El pago fue rechazado.`);
-    console.log(
-      `🚫 Compra cancelada. Orden #${orden.id_orden} marcada como cancelada.`,
-    );
-    console.log("¿Desea reintentar el pago? (s/n)");
-    console.log("Redirigiendo a seleccionar método de pago...");
   }
 }
 
-export {
-  // Usuarios
-  Usuario,
-  lista_usuarios,
-  registrarUsuario,
-  es_corporativoUsuario,
-  buscarUsuario,
-  loguearUsuario,
+// ═══════════════════════════════════════════════════════════════
+//  8. ÓRDENES PARA PROBAR EL SISTEMA
+// ═══════════════════════════════════════════════════════════════
 
-  // Sesión
-  sesion,
-  cerrarSesion,
-  estaLogueado,
+console.info(`🟠 CREAMOS A DOS USUARIOS, UNO CORPORATIVO Y OTRO NORMAL`);
+registrarUsuario(
+  new Usuario(1, "Maria Pia Buono", "pia@gmail.com", "password", true),
+);
+registrarUsuario(
+  new Usuario(
+    2,
+    "Ludmila Sánchez Rufanacht",
+    "ludmila@gmail.com",
+    "password",
+    false,
+  ),
+);
 
-  // Órdenes
-  OrdenCompra,
-  DetalleOrden,
+console.info(`\n🟠 CREAMOS EL CUPÓN PARA LOS USUARIOS NORMALES`);
+crearCupon(new Cupon(1, "CUPON", 5, "2026/10/12", true));
 
-  // Envío y pago
-  Envio,
-  Pago,
+console.info(`\n🟠 CREAMOS 5 PRODUCTOS`);
+crearProducto(
+  new Producto(1, "Cafetera Nescafé 230v Blanca Genio S Blanco", 179.999, 5),
+);
+crearProducto(
+  new Producto(
+    2,
+    "Ventilador Retractil De Techo 4 aspas Color Blanco",
+    113.149,
+    50,
+  ),
+);
+crearProducto(
+  new Producto(
+    3,
+    "Perfume Liquid Brun French Avenue 100ml Edp Arabe",
+    82.081,
+    100,
+  ),
+);
+crearProducto(
+  new Producto(4, "Samsung Galaxy A16 4g 128gb 4 Gb Ram Negro", 257.699, 150),
+);
+crearProducto(
+  new Producto(5, "Colchón KL-Eterna Känn Livet 2 Plazas", 308.999, 200),
+);
 
-  // Cupones
-  Cupon,
-  lista_cupones,
-  crearCupon,
-  validarCupon,
-  descuentoCupon,
+console.info(`\n🟠 BUSCAMOS UN PRODUCTO`);
+console.table(buscarProducto(4));
 
-  // Productos
-  Producto,
-  lista_productos,
-  crearProducto,
-  buscarProducto,
-  hayStockProducto,
-  restarStockProducto,
+console.info(`\n🟠 CREAMOS LOS CARRITOS`);
+crearCarrito(1, 2); // Carrito de Ludmila
+crearCarrito(2, 1); // Carrito de Maria Pia
 
-  // Carrito
-  ItemCarrito,
-  Carrito,
-  lista_carritos,
-  crearCarrito,
+// ═══════════════════════════════════════════════════════════════
+//  COMPRA 1 — USUARIO CORPORATIVO (Maria Pia, carrito #2)
+//  Regla de negocio: descuento 10% por ser corporativo
+// ═══════════════════════════════════════════════════════════════
 
-  // Checkout — pasos individuales
-  verificarStockCarrito,
-  verificarSesion,
-  ingresarDatosEnvio,
-  generarOrden,
-  seleccionarMetodoPago,
-  procesarPago,
-  emitirTicket,
-  enviarMailConfirmacion,
+console.info(`\n${"▓".repeat(60)}`);
+console.info(`  SIMULACIÓN DE COMPRA 1 — USUARIO CORPORATIVO (Maria Pia)`);
+console.info(`${"▓".repeat(60)}`);
 
-  // Flujo completo
-  simularCompra,
-};
+console.info(`\n🟠 USUARIO BUSCA PRODUCTOS`);
+console.log(`🔍 Maria Pia busca: "Samsung Galaxy"`);
+console.table(buscarProducto(4));
+
+console.info(`\n🟠 AGREGA PRODUCTOS AL CARRITO`);
+lista_carritos[2].agregarProducto(4 /*Samsung Galaxy*/, 1, 1);
+lista_carritos[2].agregarProducto(5 /*Colchón*/, 1, 2);
+
+console.info(`\n🟠 VAMOS AL CARRITO`);
+console.log(lista_carritos[2]);
+
+console.info(`\n🟠 HACEMOS LOGIN`);
+loguearUsuario("pia@gmail.com", "password");
+
+simularCompra(
+  2, // id_carrito
+  null, // sin cupón (aplica descuento corporativo)
+  {
+    direccion: "Av. Corrientes 1234",
+    ciudad: "Buenos Aires",
+    provincia: "Buenos Aires",
+    codigo_postal: "C1043",
+  },
+  "Tarjeta de crédito",
+  true, // pagoAprobado (aprobado)
+);
+
+// ═══════════════════════════════════════════════════════════════
+//  COMPRA 2 — USUARIO NORMAL CON CUPÓN (Ludmila, carrito #1)
+//  Regla de negocio: descuento 5% por cupón "CUPON"
+// ═══════════════════════════════════════════════════════════════
+
+cerrarSesion(); // limpia la sesión antes de la siguiente compra
+
+console.info(`\n${"▓".repeat(60)}`);
+console.info(`  SIMULACIÓN DE COMPRA 2 — USUARIO NORMAL CON CUPÓN (Ludmila)`);
+console.info(`${"▓".repeat(60)}`);
+
+console.info(`\n🟠 USUARIO BUSCA PRODUCTOS`);
+console.log(`🔍 Ludmila busca: "Cafetera"`);
+console.table(buscarProducto(1));
+
+console.info(`\n🟠 AGREGA PRODUCTOS AL CARRITO`);
+lista_carritos[1].agregarProducto(1 /*Cafetera*/, 2, 1);
+lista_carritos[1].agregarProducto(3 /*Perfume*/, 1, 2);
+
+console.info(`\n🟠 VAMOS AL CARRITO`);
+console.log(lista_carritos[1]);
+
+console.info(`\n🟠 HACEMOS LOGIN`);
+loguearUsuario("ludmila@gmail.com", "password");
+
+simularCompra(
+  1, // id_carrito
+  1, // cupon_id (aplica descuento 5%)
+  {
+    direccion: "Mitre 567",
+    ciudad: "Córdoba",
+    provincia: "Córdoba",
+    codigo_postal: "X5000",
+  },
+  "Transferencia bancaria",
+  false, // pagoAprobado (rechazado)
+);
