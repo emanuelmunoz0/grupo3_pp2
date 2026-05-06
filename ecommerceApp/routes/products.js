@@ -1,11 +1,12 @@
 import express from 'express';
-import productosDb from '../database/products_db.js';
+
+import productosController from '../controllers/productosController.js';
 
 const router = express.Router();
 
-router.get('/productos', (req, res) => { 
-    res.json(productosDb); // Respondemos con la lista de productos en formato JSON
-});
+router.get('/productos', productosController.getAll);
+
+router.get('/productos/:id', productosController.getById);
 
 router.post('/productos', (req, res) => { 
     const productoNuevo = req.body; // Obtenemos el nuevo producto enviado desde el cliente
