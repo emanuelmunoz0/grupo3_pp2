@@ -1,5 +1,5 @@
 import express from 'express';
-import usersDb from '../database/users_db.js';
+import usersDb from '../../database/users_db.js';
 
 const router = express.Router();
 
