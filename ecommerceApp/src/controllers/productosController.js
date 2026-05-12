@@ -1,4 +1,4 @@
-import productosDb from '../database/products_db.js';
+import productosDb from '../../database/products_db.js';
 import { Producto } from '../models/Producto.js';
 
 const productsController = {
