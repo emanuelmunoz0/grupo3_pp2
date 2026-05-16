@@ -30,3 +30,5 @@ class OrdenCompra {
     return (this.total = subTotal - descuentoMonto);
   }
 }
+
+export default OrdenCompra;

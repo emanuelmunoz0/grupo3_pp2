@@ -13,7 +13,7 @@ class DetalleOrden {
 }
 
 // Contador interno — no se exporta, es detalle de implementación
-let _ordenCounter = 1;
+let _ordenCounter = 0;
 function _generarIdOrden() {
   return _ordenCounter++;
 }
