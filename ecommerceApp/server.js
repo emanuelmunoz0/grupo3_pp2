@@ -1,8 +1,8 @@
 
 // server.js - El motor de nuestra aplicación
 import express from 'express';
-import productsRouter from './routes/products.js';
-import userRouter from './routes/user.js';
+import productsRouter from './src/routes/products.js';
+import userRouter from './src/routes/user.js';
 
 const app = express();
 const PORT = 3000;

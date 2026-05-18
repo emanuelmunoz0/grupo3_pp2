@@ -1,4 +1,4 @@
-import usersDb from '../database/users_db.js';
+import usersDb from '../../database/users_db.js';
 import { Usuario } from '../models/usuario.js';
 
 const userController = {
