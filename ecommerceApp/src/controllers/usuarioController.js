@@ -1,53 +1,63 @@
 import usersDb from '../../database/users_db.js';
-import { Usuario } from '../models/usuario.js';
+import Usuario from '../models/usuario.js';
 
 const userController = {
-  register(req, res) {
-    const { nombre, email } = req.body;
-    const nuevoUsuario = new Usuario(
-      usersDb.length + 1,
-      nombre,
-      email,
-      "",
-      null,
-    );
-    usersDb.push(nuevoUsuario);
-    return res.status(201).json(nuevoUsuario);
+
+  register: async (req, res) => {
+    try {
+     const { nombre, email } = req.body;
+    const nuevoUsuario = await Usuario.create({ nombre, email, password: "", es_corporativo: false });
+    res
+        .status(201)
+        .json({ mensaje: "Creado con éxito", usuario: nuevoUsuario });
+    } catch (error) {
+      res.status(400).json({ error: "Datos inválidos o incompletos" });
+    }
+},
+
+update: async (req, res) => {
+    try {
+      // Buscamos y actualizamos en base al ID que viene en la URL (req.params.id)
+      const [actualizado] = await Usuario.update(req.body, {
+        where: { id: parseInt(req.params.id) },
+      });
+      if (actualizado) {
+        res.json({ mensaje: "Usuario actualizado correctamente" });
+      } else {
+        res
+          .status(404)
+          .json({ error: "No se encontró el usuario a actualizar" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error al actualizar" });
+    }
   },
 
-  update(req, res) {
-    const idUsuario = parseInt(req.params.id);
-    const usuarioActualizado = req.body; // Obtenemos el usuario actualizado enviado desde el cliente
-    const usuario = usersDb.find((user) => user.id_usuario === idUsuario);
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+getById: async (req, res) => {
+    try {
+      const usuario = await Usuario.findByPk(req.params.id); // Buscar por Primary Key (ID)
+      if (usuario) {
+        res.json(usuario);
+      } else {
+        res.status(404).json({ error: "Usuario no encontrado" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error en el servidor" });
     }
-    usuario.nombre = usuarioActualizado.nombre ?? usuario.nombre;
-    usuario.email = usuarioActualizado.email ?? usuario.email;
-    usuario.password = usuarioActualizado.password ?? usuario.password;
-    usuario.es_corporativo =
-      usuarioActualizado.es_corporativo ?? usuario.es_corporativo;
-    return res.json(usuario);
   },
 
-  getById(req, res) {
-    const idUsuario = parseInt(req.params.id);
-    const usuario = usersDb.find((user) => user.id_usuario === idUsuario);
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+  delete: async (req, res) => {
+    try {
+      const borrados = await Usuario.destroy({ where: { id: req.params.id } });
+      if (borrados > 0) {
+        res.json({ mensaje: "Usuario eliminado correctamente" });
+      } else {
+        res.status(404).json({ error: "El usuario no existe" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error al intentar eliminar" });
     }
-    return res.json(usuario);
-  },
-
-  remove(req, res) {
-    const idUsuario = parseInt(req.params.id);
-    const usuario = usersDb.find((user) => user.id_usuario === idUsuario);
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-    usersDb.splice(usersDb.indexOf(usuario), 1);
-    return res.status(204).end();
-  },
+  }
 };
 
 export default userController;

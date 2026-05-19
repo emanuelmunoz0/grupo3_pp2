@@ -1,55 +1,69 @@
-import productosDb from '../../database/products_db.js';
-import { Producto } from '../models/Producto.js';
+import productosDb from "../../database/products_db.js";
+import Producto from "../models/Producto.js";
 
 const productsController = {
-  getAll(req, res) {
-    res.json(productosDb);
-  },
-
-  getById(req, res) {
-    const id = Number(req.params.id);    
-    const product = productosDb.find(producto => producto.id_producto === idProducto);
-
-    if (!product) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+  getAll: async (req, res) => {
+    try {
+      const productos = await Producto.findAll();
+      res.json(productos);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener los productos" });
     }
-    return res.json(product);
   },
 
-  create(req, res) {
-    const { id, nombre, precio, stock, imagen } = req.body;
-    const product = new Producto({ id: productosDb.length + 1, nombre, precio, stock, imagen });
-    productosDb.push(product);
-    return res.status(201).json(product);
-  },
-
-  update(req, res) {
-    const id = Number(req.params.id);
-    const product = productosDb.find(item => item.id === id);
-
-    if (!product) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+  getById: async (req, res) => {
+    try {
+      const producto = await Producto.findByPk(req.params.id); // Buscar por Primary Key (ID)
+      if (producto) {
+        res.json(producto);
+      } else {
+        res.status(404).json({ error: "Producto no encontrado" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error en el servidor" });
     }
-
-    const { nombre, precio, stock, imagen } = req.body;
-    if (nombre !== undefined) product.nombre = nombre;
-    if (precio !== undefined) product.precio = precio;
-    if (stock !== undefined) product.stock = stock;
-    if (imagen !== undefined) product.imagen = imagen;
-
-    return res.json(product);
   },
 
-  remove(req, res) {
-    const id = Number(req.params.id);
-    const index = productosDb.findIndex(item => item.id === id);
-
-    if (index === -1) {
-      return res.status(404).json({ error: 'Producto no encontrado' });
+  create: async (req, res) => {
+    try {
+      const nuevoProducto = await Producto.create(req.body); // INSERT INTO...
+      res
+        .status(201)
+        .json({ mensaje: "Creado con éxito", producto: nuevoProducto });
+    } catch (error) {
+      res.status(400).json({ error: "Datos inválidos o incompletos" });
     }
-    productosDb.splice(index, 1);
+  },
 
-    return res.status(204).end();
+  update: async (req, res) => {
+    try {
+      // Buscamos y actualizamos en base al ID que viene en la URL (req.params.id)
+      const [actualizado] = await Producto.update(req.body, {
+        where: { id: req.params.id },
+      });
+      if (actualizado) {
+        res.json({ mensaje: "Producto actualizado correctamente" });
+      } else {
+        res
+          .status(404)
+          .json({ error: "No se encontró el producto a actualizar" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error al actualizar" });
+    }
+  },
+
+  delete: async (req, res) => {
+    try {
+      const borrados = await Producto.destroy({ where: { id: req.params.id } });
+      if (borrados > 0) {
+        res.json({ mensaje: "Producto eliminado correctamente" });
+      } else {
+        res.status(404).json({ error: "El producto no existe" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error al intentar eliminar" });
+    }
   }
 };
 
@@ -80,5 +94,5 @@ const productsController = {
 //       console.log(`No existe el producto`);
 //     }
 //   }
- 
+
 export default productsController;

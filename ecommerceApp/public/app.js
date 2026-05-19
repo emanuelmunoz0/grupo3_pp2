@@ -85,7 +85,6 @@ async function crearCardsProducto() {
   try {
     const respuesta = await fetch('/api/productos'); // Esperamos a la red
     const productos = await respuesta.json(); // Esperamos a que se convierta a JSON
-    
     productos.forEach((producto) => {
       const container = document.getElementById("catalogo");
       const colDiv = document.createElement("div");

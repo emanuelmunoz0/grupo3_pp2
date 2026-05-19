@@ -2,6 +2,10 @@
 import express from 'express';
 import productsRouter from './src/routes/products.js';
 import userRouter from './src/routes/user.js';
+import sequelize from './src/config/database.js';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Cargar variables de entorno desde .env
 
 const app = express();
 const PORT = 3000;
@@ -19,6 +23,12 @@ app.post("/api/checkout", (req, res) => {
 });
 
 // Encendemos el servidor
-app.listen(PORT, () => {
-  console.log(`✅Servidor corriendo en http://localhost:${PORT}`);
-});
+
+sequelize.sync()
+ .then(() => {
+ console.log('✅Base de datos conectada y sincronizada');
+ app.listen(PORT, () => {
+ console.log(`🚀Servidor corriendo en http://localhost:${PORT}`);
+ });
+ })
+ .catch((err) => console.log('❌Error de conexión:', err));
