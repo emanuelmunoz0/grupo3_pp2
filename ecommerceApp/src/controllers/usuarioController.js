@@ -62,11 +62,9 @@ getById: async (req, res) => {
 
 export default userController;
 
-
 // function es_corporativoUsuario(usuario_id) {
 //   return lista_usuarios[usuario_id]?.es_corporativo || false;
 // }
-
 
 // function loguearUsuario(email, password) {
 //   for (let id in lista_usuarios) {
@@ -80,7 +78,6 @@ export default userController;
 //   console.log(`❌ Error al loguearse`);
 //   return false;
 // }
-
 
 // function cerrarSesion() {
 //   sesion.usuario_id = null;
