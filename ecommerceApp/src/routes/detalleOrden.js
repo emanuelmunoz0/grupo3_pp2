@@ -4,11 +4,14 @@ import detalleOrdenController from '../controllers/detalleOrdenController.js';
 
 const router = express.Router();
 
-router.get('/', detalleOrdenController);
-router.get('/:id', detalleOrdenController);
+router.get('/', detalleOrdenController.getAll);
 
-router.post('/', detalleOrdenController);
+router.get('/:id', detalleOrdenController.getById);
 
-router.put('/:id', detalleOrdenController);
+router.post('/', detalleOrdenController.create);
 
-router.delete('/:id', detalleOrdenController);
+router.put('/:id', detalleOrdenController.update);
+
+router.delete('/:id', detalleOrdenController.delete);
+
+export default router;

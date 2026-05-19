@@ -1,34 +1,45 @@
-class OrdenCompra {
-  constructor(id_orden, fecha_compra) {
-    this.id_orden = id_orden;
-    this.usuario_id = null;
-    this.cupon_id = null;
-    this.total = 0;
-    this.fecha_compra = new Date(fecha_compra);
-    this.estado_compra = "Pendiente";
-    this.DetalleOrden = [];
-  }
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
-  agregarDetalle(detalle) {
-    this.DetalleOrden.push(detalle);
-  }
+const OrdenCompra = sequelize.define('OrdenCompra', {
+    id_orden: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
 
-  calcularTotal() {
-    const subTotal = this.DetalleOrden.reduce(
-      (acc, det) => acc + det.subtotalDetalleOrden(),
-      0,
-    );
+    usuario_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Usuario',
+            key: 'id_usuario'
+        }
+    },
 
-    let porcentajeDescuento = 0;
-    if (es_corporativoUsuario(this.usuario_id)) {
-      porcentajeDescuento = 10;
-    } else if (validarCupon(this.cupon_id)) {
-      porcentajeDescuento = descuentoCupon(this.cupon_id) * 100;
+    cupon_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'Cupon',
+            key: 'id_cupon'
+        }
+    },
+
+    total: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+
+    fecha_compra: {
+        type: DataTypes.DATEONLY,
+        allowNull: false
+    },
+
+    estado_compra: {
+        type: DataTypes.STRING,
+        allowNull: false
     }
-
-    const descuentoMonto = subTotal * (porcentajeDescuento / 100);
-    return (this.total = subTotal - descuentoMonto);
-  }
-}
+});
 
 export default OrdenCompra;

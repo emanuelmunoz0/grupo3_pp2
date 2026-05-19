@@ -1,19 +1,40 @@
-class DetalleOrden {
-  constructor(id_orden, id_detalle, cantidad, precio_unitario) {
-    this.id_orden = id_orden;
-    this.id_detalle = id_detalle;
-    this.producto_id = null;
-    this.cantidad = cantidad;
-    this.precio_unitario = precio_unitario;
-  }
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
-  subtotalDetalleOrden() {
-    return this.cantidad * this.precio_unitario;
-  }
-}
+const DetalleOrden = sequelize.define('DetalleOrden', {
+    id_orden: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'OrdenCompra',
+            key: 'id_orden'
+        }
+    },
 
-// Contador interno — no se exporta, es detalle de implementación
-let _ordenCounter = 0;
-function _generarIdOrden() {
-  return _ordenCounter++;
-}
+    id_detalle: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+
+    producto_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'Producto',
+            key: 'id_producto'
+        }
+    },
+
+    cantidad: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+
+    precio_unitario: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    }
+});
+
+export default DetalleOrden;
