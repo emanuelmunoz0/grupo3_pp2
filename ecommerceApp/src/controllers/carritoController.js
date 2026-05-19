@@ -1,29 +1,42 @@
-function crearCarrito(id_carrito, id_usuario) {
-  const usuario = id_usuario; //buscarUsuario(id_usuario);
-  if (usuario) {
-    const carrito = new Carrito(id_carrito, usuario);
-    lista_carritos[carrito.id_carrito] = carrito;
-    return carrito;
-  } else {
-    console.log(`Se produjo un error`);
-  }
-}
+import carritoDB from '../../database/carrito_db.js';
+import { Carrito } from '../models/Carrito.js';
 
-function verificarStockCarrito(id_carrito) {
-  const carrito = lista_carritos[id_carrito];
+const carritoController = {
+
+  register(req, res) {
+     const ididCarrito = parseInt(req.body);
+     const nuevoCarrito = newCarrito(id_carrito, usuario,ItemCarrito = []);
+     carritoDB.push(nuevoCarrito);
+     return res.status(201).json(nuevo.Carrito);
+},
+
+  update(req, res) {
+    const idUsuario = parseInt(req.params.id);
+    const carritoActualizado = req.body; // Obtenemos el carrito actualizado enviado desde el cliente
+    const carrito = carritoDB.find(carrito => carrito.id_carrito === idUsuario);
   if (!carrito) {
-    console.log(`❌ Carrito ${id_carrito} no encontrado`);
-    return false;
-  }
-
-  for (const item of carrito.ItemCarrito) {
-    if (!buscarProducto(item.producto_id.id_producto)) {
-      console.log(
-        `❌ El producto ${item.producto_id.nombre} ya no está disponible`,
-      );
-      return false;
+      return res.status(404).json({ error: 'Carrito no encontrado' });
     }
-  }
-  console.log(`✔️  Stock verificado correctamente`);
-  return true;
-}
+    carrito.usuario = carritoActualizado.usuario ?? carrito.usuario;
+    carrito.ItemCarrito = carritoActualizado.ItemCarrito ?? carrito.ItemCarrito;
+    return res.json(usuario);
+},
+  getById(req, res) {
+    const idCarrito = parseInt(req.params.id);
+    const carrito = carritoDB.find(carrito => carrito.id_carrito === idCarrito);
+    if (!carrito) {
+        return res.status(404).json({ error: 'Carrito no encontrado' });
+    } 
+    return res.json(carrito);
+  },
+  remove(req, res) {
+    const idCarrito = parseInt(req.params.id);
+    const carrito = carritoDB.find(carrito => carrito.id_carrito === idCarrito);  
+    if (!carrito) {
+        return res.status(404).json({ error: 'Carrito no encontrado' });
+    } 
+    carritoDB.splice(carritoDB.indexOf(carrito), 1);
+    return res.status(204).end();
+  } 
+};
+export default carritoController;

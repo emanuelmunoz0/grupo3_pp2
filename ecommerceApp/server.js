@@ -10,7 +10,7 @@ const app = express();
 const PORT = 3000;
 
 // Le decimos al servidor que exponga públicamente los archivos de la carpeta "public"
-app.use(express.static('public'));
+app.use(express.static("public"));
 app.use(express.json()); // Middleware para parsear JSON en las solicitudes
 
 app.use('/api', productsRouter);

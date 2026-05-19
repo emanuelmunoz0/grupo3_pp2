@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 
-require('dotenv').config(); // Abre la caja fuerte del .env
+dotenv.config(); // Cargar variables de entorno desde .env
 
 // Configuramos Sequelize leyendo las variables de entorno
 const sequelize = new Sequelize({
