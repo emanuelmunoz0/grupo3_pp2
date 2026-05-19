@@ -1,44 +1,54 @@
-import express from 'express';
-import carritoDb from '../database/carrito_db.js';
+ 
+import cuponDb from '../../database/cupon_db.js';
+import { Cupon } from '../models/Cupon.js';
+ 
+const cuponController = {
+    getAll(req, res) {
+        res.json(cuponDb);
+    },
+    getById(req, res) {
+        const id = Number(req.params.id);
+        const cupon = cuponDb.find(cupon => cupon.id_cupon === id); 
+        if (!cupon) {
+            return res.status(404).json({ error: 'Cupon no encontrado' });
+        }
+        res.json(cupon);
+    },
+ 
 
-const router = express.Router();
+    create (req,res)  {  
+        const { id, nombre, descuento } = req.body;
+        const cupon = new Cupon({ id: cuponDb.length + 1, nombre, descuento });
+        cuponDb.push(cupon);
+        res.status(201).json(cupon);
+    },
+ 
+    update (req,res) {
+        const id = Number(req.params.id);
+        const cupon = cuponDb.find(item => item.id === id);
+        if (!cupon) {
+            return res.status(404).json({ error: 'Cupon no encontrado' });
+        }   
+        const { nombre, descuento } = req.body; 
+        if (nombre !== undefined) cupon.nombre = nombre;
+        if (descuento !== undefined) cupon.descuento = descuento;   
 
-router.get('/carrito', (req, res) => { 
-    res.json(carritoDb); // Respondemos con la lista de carritos en formato JSON
-});
+        return res.json(product);
+    },
 
-router.post('/carrito', (req, res) => { 
-    const carritoNuevo = req.body; // Obtenemos el nuevo carrito.
-    carritoDb.push(carritoNuevo); // Agregamos el nuevo carrito a la base de datos en memoria
-    console.log('Carrito:', carritoNuevo); 
-    res.json(carritoDb); 
-});
+   remove (req,res) {
+        const id = Number(req.params.id);
+        const index = cuponDb.findIndex(item => item.id === id);    
+        if (index !== -1) {
+            const [removedCupon] = cuponDb.splice(index, 1);
+            return res.json(removedCupon);
+        }
+        return res.status(404).json({ error: 'Cupon no encontrado' });
+        
+    cuponDb.splice(index, 1);
 
-router.put('/carrito/:id',(req,res) => {
-    const id_carrito = parseInt(req.params.id);
-    const carritoActualizado = req.body; // Obtenemos el carrito actualizado enviado
-    const carrito= carritoDb.find(carrito => carrito.id_carrito === idcarrito);
-    if (carrito) {
-       carrito.nombre = carritoActualizado.usuario ?? carrito.usuario;
-       carrito.usuario = carritoActualizado.descuento ?? cupon.precio;
-       console.log('Carrito actualizado:', carrito);
-        res.json(carrito);
-    } else {
-        res.status(404).json({ error: 'Carrito no encontrado' });
-    }
-});
+    return res.status(204).end();
+}
+};
 
-router.delete('carrito/id:',(req,res) => {
-    const id_carrito = parseInt(req.params.id);
-    const carrito= carritoDb.find(carrito => carrito.id_carrito === idcarrito);
-    if (carrito) {
-         carritoDb.splice(carritoDb.indexOf(carrito), 1);
-    console.log('Carrito eliminado exitosamente:', carrito);
-        res.json(carrito);
-    } else {
-        res.status(404).json({ error: 'Carrito no encontrado' });
-    }
-});
-
-
-export default router;
+export default cuponController;
