@@ -14,44 +14,67 @@ function ingresarDatosEnvio(datosEnvio) {
 }
 
 const envioController = {
-  getAll: (req, res) => {
-    res.json({ message: "Obtener todos los envíos" });
-  },
-
-  getById: (req, res) => {
-    const id = Number(req.params.id);
-    const envio = buscarEnvio(id);
-
-    if (envio) {
-      return res.json(envio);
+  getAll: async (req, res) => {
+    try {
+      const envios = await Envio.findAll();
+      res.json(envios);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-    res.json({ error: `Envío con ID: ${id} no encontrado` });
   },
-  create: (req, res) => {
-    const datosEnvio = req.body;
-    const envio = ingresarDatosEnvio(datosEnvio);
-    return res.json(envio);
-  },
-  update: (req, res) => {
-    const id = Number(req.params.id);
-    const datosEnvio = req.body;
-    const envio = buscarEnvio(id);
 
-    if (envio) {
-      // Lógica para actualizar el envío
-      return res.json({ message: `Envío con ID: ${id} actualizado` });
+  getById: async (req, res) => {
+    try {
+      const envio = await Envio.findByPk(req.params.id);
+      if (envio) {
+        res.json(envio);
+      } else {
+        res.status(404).json({ error: `Envío no encontrado` });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error en el servidor" });
+    }},
+    
+  create: async (req, res) => {
+    try {
+      const nuevoEnvio = await Envio.create(req.body);
+      res
+      .status(201)
+      .json({ mensaje: "Envío creado exitosamente", envio: nuevoEnvio });
+    } catch (error) {
+      res.status(500).json({ error: "datos incorrectos" });
     }
-    res.json({ error: `Envío con ID: ${id} no encontrado` });
   },
-  remove: (req, res) => {
-    const id = Number(req.params.id);
-    const envio = buscarEnvio(id);
 
-    if (envio) {
-      // Lógica para eliminar el envío
-      return res.json({ message: `Envío con ID: ${id} eliminado` });
+  update: async (req, res) => {
+    try {
+      const [actualizado] = await Envio.update(req.body, {
+        where: { id: req.params.id },
+      });
+      if (actualizado) {
+        res.json({ mensaje: `Envío actualizado` });
+      } else {
+        res
+        .status(404)
+        .json({ error: `No se encontro el envio a actualizar` });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error al actualizar el envío" });
     }
-    res.json({ error: `Envío con ID: ${id} no encontrado` });
-  }
-}
+  },
+  delete: async (req, res) => {
+    try {
+    const borrado = await Envio.destroy({
+      where: { id: req.params.id },
+    });
+    if (borrado > 0) {
+      res.json({ message: `Envío eliminado` });
+    } else {
+      res.status(404).json({ error: `Envío no encontrado` });
+    }
+  } catch (error) {    res.status(500).json({ error: "Error al eliminar el envío" });
+  }},
+};
+
+export default envioController;
 
