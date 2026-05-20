@@ -3,23 +3,25 @@ import sequelize from '../config/database.js';
 
 // Definimos la tabla 'Productos'
 const Producto = sequelize.define('Producto', {
- // El ID se crea solo por defecto (Autoincremental), no hace falta ponerlo
- nombre: {
- type: DataTypes.STRING,
- allowNull: false // Obligatorio
- },
- precio: {
- type: DataTypes.FLOAT,
- defaultValue: 0
- },
- stock: {
- type: DataTypes.INTEGER,
- defaultValue: 0
- },
- image: {
- type: DataTypes.STRING,
- defaultValue: "https://via.placeholder.com/150" // Imagen por defecto
- }
+    // El ID se crea solo por defecto (Autoincremental), no hace falta ponerlo
+    nombre: {
+        type: DataTypes.STRING,
+        allowNull: false // Obligatorio
+    },
+    precio: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0
+    },
+    stock: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    image: {
+        type: DataTypes.STRING,
+        defaultValue: "https://via.placeholder.com/150" // Imagen por defecto
+    }
+}, {
+    freezeTableName: true
 });
 
 // export class Producto {
@@ -33,4 +35,3 @@ const Producto = sequelize.define('Producto', {
 // }
 
 export default Producto;
-

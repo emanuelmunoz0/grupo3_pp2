@@ -6,6 +6,13 @@ import userRouter from './src/routes/user.js';
 import ordenCompraRouter from './src/routes/ordenCompra.js';
 import detalleOrdenRouter from './src/routes/detalleOrden.js';
 
+import './src/models/Usuario.js';
+import './src/models/Producto.js';
+import './src/models/OrdenCompra.js';
+import './src/models/DetalleOrden.js';
+
+import './src/models/asociaciones.js';
+
 const app = express();
 const PORT = 3000;
 

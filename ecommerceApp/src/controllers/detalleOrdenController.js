@@ -1,10 +1,21 @@
 import DetalleOrden from '../models/DetalleOrden.js';
+import Producto from '../models/Producto.js';
+import OrdenCompra from '../models/OrdenCompra.js';
 
 const detalleOrdenController = {
 
     getAll: async (req, res) => {
         try {
-            const detalles = await DetalleOrden.findAll();
+            const detalles = await DetalleOrden.findAll({
+                include: [
+                    {
+                        model: Producto
+                    },
+                    {
+                        model: OrdenCompra
+                    }
+                ]
+            });
 
             res.json(detalles);
 
@@ -15,7 +26,16 @@ const detalleOrdenController = {
 
     getById: async (req, res) => {
         try {
-            const detalle = await DetalleOrden.findByPk(req.params.id);
+            const detalle = await DetalleOrden.findByPk(req.params.id, {
+                include: [
+                    {
+                        model: Producto
+                    },
+                    {
+                        model: OrdenCompra
+                    }
+                ]
+            });
 
             if (!detalle) {
                 return res.status(404).json({ error: "Detalle de orden no encontrado" });

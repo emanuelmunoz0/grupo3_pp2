@@ -1,10 +1,24 @@
 import OrdenCompra from '../models/OrdenCompra.js';
+import Usuario from '../models/Usuario.js';
+import DetalleOrden from '../models/DetalleOrden.js';
+import Producto from '../models/Producto.js';
 
 const ordenCompraController = {
 
     getAll: async (req, res) => {
         try {
-            const ordenes = await OrdenCompra.findAll();
+            const ordenes = await OrdenCompra.findAll({
+                include: [
+                    {
+                        model: Usuario
+                    },
+                    {
+                        model: DetalleOrden,
+                        include: [Producto]
+                    }
+                ]
+            });
+
             res.json(ordenes);
         } catch (error) {
             res.status(500).json({ error: "Error al consultar la base de datos" });
@@ -13,7 +27,17 @@ const ordenCompraController = {
 
     getById: async (req, res) => {
         try {
-            const orden = await OrdenCompra.findByPk(req.params.id);
+            const orden = await OrdenCompra.findByPk(req.params.id, {
+                include: [
+                    {
+                        model: Usuario
+                    },
+                    {
+                        model: DetalleOrden,
+                        include: [Producto]
+                    }
+                ]
+            });
 
             if (!orden) {
                 return res.status(404).json({ error: "Orden de compra no encontrada" });
