@@ -8,12 +8,13 @@ import detalleOrdenRouter from './src/routes/detalleOrden.js';
 import carritoRouter from './src/routes/carrito.js';
 import cuponRouter from './src/routes/cupon.js';
 import './src/models/asociaciones.js';
+import 'dotenv/config';
 
 const app = express();
 const PORT = 3000;
 
 // Le decimos al servidor que exponga públicamente los archivos de la carpeta "public"
-app.use(express.static("public"));
+app.use(express.static("../frontend"));
 app.use(express.json()); // Middleware para parsear JSON en las solicitudes
 
 app.use('/api', productsRouter);
@@ -33,11 +34,11 @@ app.post('/api/checkout', (req, res) => {
 
 // Encendemos el servidor
 sequelize.sync()
-.then(() => {
- app.listen(PORT, () => {
-  console.log(`✅Servidor corriendo en http://localhost:${PORT}`);
- });
-})
-.catch((error) => {
- console.log('❌Error de conexión:', error);
-});
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`✅Servidor corriendo en http://localhost:${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.log('❌Error de conexión:', error);
+    });

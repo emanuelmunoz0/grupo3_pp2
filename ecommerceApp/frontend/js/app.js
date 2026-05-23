@@ -113,7 +113,7 @@ async function crearCardsProducto() {
 
       card.innerHTML = `
         <div class="position-relative overflow-hidden" style="height: 250px; background: #f8f9fa;">
-          <img src="${producto.img}" class="card-img-top w-100 h-100 object-fit-cover" alt="${producto.nombre}">
+          <img src="${producto.image}" class="card-img-top w-100 h-100 object-fit-cover" alt="${producto.nombre}">
           ${producto.stock < 20 ? '<span class="badge bg-warning position-absolute top-0 end-0 m-2">Últimas unidades</span>' : '<span class="badge bg-success position-absolute top-0 end-0 m-2">En stock</span>'}
         </div>
         <div class="card-body d-flex flex-column">
@@ -129,8 +129,8 @@ async function crearCardsProducto() {
           </div>
         </div>
         <div class="card-footer bg-white border-top-0">
-          <button class="btn btn-primary w-100 btn-sm fw-bold addToCartBtn" id="${producto.id_producto}">
-            <i class="bi bi-cart-plus"></i> Agregar al carrito
+          <button class="btn btn-primary w-100 btn-sm fw-bold addToCartBtn" ${producto.stock === 0 ? 'disabled' : ''} id="${producto.id_producto}">
+            <i class="bi bi-cart-plus"></i> ${producto.stock > 0 ? 'Agregar al carrito' : 'Agotado'}
           </button>
         </div>
       `;
