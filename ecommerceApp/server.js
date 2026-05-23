@@ -5,12 +5,8 @@ import productsRouter from './src/routes/products.js';
 import userRouter from './src/routes/user.js';
 import ordenCompraRouter from './src/routes/ordenCompra.js';
 import detalleOrdenRouter from './src/routes/detalleOrden.js';
-
-import './src/models/Usuario.js';
-import './src/models/Producto.js';
-import './src/models/OrdenCompra.js';
-import './src/models/DetalleOrden.js';
-
+import carritoRouter from './src/routes/carrito.js';
+import cuponRouter from './src/routes/cupon.js';
 import './src/models/asociaciones.js';
 
 const app = express();
@@ -24,6 +20,8 @@ app.use('/api', productsRouter);
 app.use('/api', userRouter);
 app.use('/api/ordenes', ordenCompraRouter);
 app.use('/api/detalles', detalleOrdenRouter);
+app.use('/api/carrito', carritoRouter);
+app.use('/api/cupon', cuponRouter);
 
 app.post('/api/checkout', (req, res) => {
     const carritoRecibido = req.body;

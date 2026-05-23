@@ -25,4 +25,4 @@ const Cupon = sequelize.define('Cupon', {
   }
 });
 
-export default Cupon;
+export { Cupon };

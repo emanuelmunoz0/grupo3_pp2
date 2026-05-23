@@ -15,5 +15,5 @@ const Carrito = sequelize.define('Carrito', {
   }
 });
 
-export default Carrito;
+export { Carrito };
 

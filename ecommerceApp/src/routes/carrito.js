@@ -1,11 +1,11 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const controller = require('../controllers/carritoController');
+import controller from '../controllers/carritoController.js';
 
 router.get('/', controller.getAll);
 router.get('/:id', controller.getById);
 router.post('/', controller.create);
 router.put('/:id', controller.update);
-router.delete('/:id', controller.remove);
+router.delete('/:id', controller.delete);
 
-module.exports = router;
+export default router;
