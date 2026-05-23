@@ -10,20 +10,12 @@ const OrdenCompra = sequelize.define('OrdenCompra', {
 
     usuario_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Usuario',
-            key: 'id_usuario'
-        }
+        allowNull: false
     },
 
     cupon_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: 'Cupon',
-            key: 'id_cupon'
-        }
+        allowNull: true
     },
 
     total: {
@@ -40,6 +32,8 @@ const OrdenCompra = sequelize.define('OrdenCompra', {
         type: DataTypes.STRING,
         allowNull: false
     }
+}, {
+    freezeTableName: true
 });
 
 export default OrdenCompra;

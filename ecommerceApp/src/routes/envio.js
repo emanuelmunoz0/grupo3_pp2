@@ -12,6 +12,6 @@ router.post('/envio', envioController.create);
 
 router.put('/envio/:id', envioController.update);
 
-router.delete('/envio/:id', envioController.remove);
+router.delete('/envio/:id', envioController.delete);
 
 module.exports = router;

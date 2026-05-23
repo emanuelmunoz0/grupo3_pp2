@@ -4,11 +4,7 @@ import sequelize from '../config/database.js';
 const DetalleOrden = sequelize.define('DetalleOrden', {
     id_orden: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'OrdenCompra',
-            key: 'id_orden'
-        }
+        allowNull: false
     },
 
     id_detalle: {
@@ -19,11 +15,7 @@ const DetalleOrden = sequelize.define('DetalleOrden', {
 
     producto_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'Producto',
-            key: 'id_producto'
-        }
+        allowNull: false
     },
 
     cantidad: {
@@ -35,6 +27,8 @@ const DetalleOrden = sequelize.define('DetalleOrden', {
         type: DataTypes.INTEGER,
         allowNull: false
     }
+}, {
+    freezeTableName: true
 });
 
 export default DetalleOrden;
