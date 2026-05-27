@@ -7,7 +7,7 @@ import ordenCompraRouter from './src/routes/ordenCompra.js';
 import detalleOrdenRouter from './src/routes/detalleOrden.js';
 import carritoRouter from './src/routes/carrito.js';
 import cuponRouter from './src/routes/cupon.js';
-import './src/models/asociaciones.js';
+import './src/models/index.js';
 import 'dotenv/config';
 
 const app = express();

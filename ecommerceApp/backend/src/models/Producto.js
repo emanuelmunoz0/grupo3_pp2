@@ -19,6 +19,18 @@ const Producto = sequelize.define('Producto', {
     image: {
         type: DataTypes.STRING,
         defaultValue: "https://via.placeholder.com/150" // Imagen por defecto
+    },
+    id_categoria: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    validoDesde: {
+        type: DataTypes.DATEONLY,
+        defaultValue: DataTypes.NOW
+    },
+    validoHasta: {
+        type: DataTypes.DATEONLY,
+        defaultValue: '2099-12-31'
     }
 }, {
     freezeTableName: true
