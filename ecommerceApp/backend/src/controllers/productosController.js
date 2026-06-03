@@ -1,10 +1,15 @@
 import productosDb from "../../database/products_db.js";
 import Producto from "../models/Producto.js";
+import Categoria from "../models/Categoria.js";
+
 
 const productsController = {
   getAll: async (req, res) => {
     try {
-      const productos = await Producto.findAll();
+      const productos = await Producto.findAll({
+       where: { id_categoria : 2},
+       order: [['id', 'ASC']]
+    });
       res.json(productos);
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los productos" });

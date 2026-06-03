@@ -143,6 +143,7 @@ async function crearCardsProducto() {
   }
 }
 
+
 function updateCartDisplay(carrito) {
   const cartItemsContainer = document.getElementById("cart-items");
   const cartTotalContainer = document.getElementById("cart-total");
@@ -153,9 +154,24 @@ function updateCartDisplay(carrito) {
   cartTotalContainer.textContent = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
 }
 
+
 crearCardsProducto();
 
+async function cargarCategorias() {
+  const categoryFilter = document.getElementById("category-filter");
+  try {
+    const respuesta = await fetch('/api/categorias'); // Esperamos a la red
+    const categorias = await respuesta.json(); // Esperamos a que se convierta a JSON
+     categoryFilter.innerHTML =
+    '<option value="">Todas las categorías</option>' +
+    categorias.map(category => `<option value="${category.id_categoria}">${category.nombre}</option>`).join('');
+  }catch (error) {
+    console.error("Error al cargar las categorías:", error);
+  }
+}
 
+cargarCategorias();
+ 
 
 window.addEventListener("load", (event) => {
 

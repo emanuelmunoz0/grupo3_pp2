@@ -7,6 +7,7 @@ import ordenCompraRouter from './src/routes/ordenCompra.js';
 import detalleOrdenRouter from './src/routes/detalleOrden.js';
 import carritoRouter from './src/routes/carrito.js';
 import cuponRouter from './src/routes/cupon.js';
+import categoriaRouter from './src/routes/categoria.js';
 import './src/models/index.js';
 import 'dotenv/config';
 
@@ -23,6 +24,7 @@ app.use('/api/ordenes', ordenCompraRouter);
 app.use('/api/detalles', detalleOrdenRouter);
 app.use('/api/carrito', carritoRouter);
 app.use('/api/cupon', cuponRouter);
+app.use('/api/categorias', categoriaRouter);
 
 app.post('/api/checkout', (req, res) => {
     const carritoRecibido = req.body;
