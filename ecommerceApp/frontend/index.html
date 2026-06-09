@@ -100,35 +100,82 @@
     <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <span class="navbar-brand mb-0 h1">🛍️ NeoData Shop</span>
-        <button class="btn btn-outline-light">
-          🛒 Carrito (<span id="cart-count">0</span>)
-        </button>
+        <div class="d-flex gap-2 align-items-center">
+          <span id="session-status" class="text-light small">Modo invitado</span>
+          <button id="logout-button" class="btn btn-outline-light btn-sm d-none">
+            Cerrar sesión
+          </button>
+          <button class="btn btn-outline-light">
+            🛒 Carrito (<span id="cart-count">0</span>)
+          </button>
+        </div>
       </div>
     </nav>
 
     <!-- Contenedor Principal -->
     <div class="container mt-5 mb-5" id="app">
-      <div class="row mb-4">
-        <div class="col-md-4">
-          <label for="category-filter" class="form-label">Filtrar por categoría</label>
-          <select id="category-filter" class="form-select">
-            <option value="">Todas las categorías</option>
-          </select>
-        </div>
-                <div class="col-md-3 d-grid">
-                  <button id="reload-products" class="btn btn-outline-primary">Recargar datos</button>
+      <section id="login-section" class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h2 class="h4 mb-4">Iniciar sesión</h2>
+              <form id="login-form">
+                <div class="mb-3">
+                  <label for="login-email" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="login-email"
+                    autocomplete="email"
+                    required
+                  />
                 </div>
-              </div>
+                <div class="mb-3">
+                  <label for="login-password" class="form-label">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="login-password"
+                    autocomplete="current-password"
+                    required
+                  />
+                </div>
+                <p id="login-message" class="text-danger small mb-3"></p>
+                <button type="submit" class="btn btn-primary w-100">
+                  Ingresar
+                </button>
+              </form>
             </div>
-     
+          </div>
+        </div>
+      </section>
 
-      <div class="catalog-header">
-        <h2>Catálogo de Productos</h2>
-      </div>
-      <div class="row g-4" id="catalogo"></div>
+      <section id="catalog-section" class="d-none">
+        <div class="row mb-4 align-items-end">
+          <div class="col-md-4">
+            <label for="category-filter" class="form-label">Filtrar por categoría</label>
+            <select id="category-filter" class="form-select">
+              <option value="">Todas las categorías</option>
+            </select>
+          </div>
+          <div class="col-md-3 d-grid">
+            <button id="reload-products" class="btn btn-outline-primary">Recargar datos</button>
+          </div>
+          <div class="col-md-3 d-grid d-none" id="admin-actions-panel">
+            <button id="admin-action-button" class="btn btn-warning">
+              Panel admin
+            </button>
+          </div>
+        </div>
+
+        <div class="catalog-header">
+          <h2>Catálogo de Productos</h2>
+        </div>
+        <div class="row g-4" id="catalogo"></div>
+      </section>
     </div>
 
-    <div>
+    <div id="cart-summary" class="container mb-4 d-none">
       Carrito: <span id="cart-items"></span>
       Total: $<span id="cart-total">0.00</span>
     </div>

@@ -1,25 +1,33 @@
-import usersDb from '../../database/users_db.js';
-import Usuario from '../models/usuario.js';
+import usersDb from "../../database/users_db.js";
+import Usuario from "../models/Usuario.js";
 
 const userController = {
-
   register: async (req, res) => {
     try {
-     const { nombre, email } = req.body;
-    const nuevoUsuario = await Usuario.create({ nombre, email, password: "", es_corporativo: false });
-    res
+      const { nombre, email, password, role = "client" } = req.body;
+      const nuevoUsuario = await Usuario.create({
+        nombre,
+        email,
+        password,
+        role,
+        es_corporativo: false,
+      });
+      const usuario = nuevoUsuario.toJSON();
+      delete usuario.password;
+      res
         .status(201)
-        .json({ mensaje: "Creado con éxito", usuario: nuevoUsuario });
+        .json({ mensaje: "Creado con éxito", usuario });
     } catch (error) {
       res.status(400).json({ error: "Datos inválidos o incompletos" });
     }
-},
+  },
 
-update: async (req, res) => {
+  update: async (req, res) => {
     try {
       // Buscamos y actualizamos en base al ID que viene en la URL (req.params.id)
       const [actualizado] = await Usuario.update(req.body, {
         where: { id: parseInt(req.params.id) },
+        individualHooks: true,
       });
       if (actualizado) {
         res.json({ mensaje: "Usuario actualizado correctamente" });
@@ -33,11 +41,13 @@ update: async (req, res) => {
     }
   },
 
-getById: async (req, res) => {
+  getById: async (req, res) => {
     try {
       const usuario = await Usuario.findByPk(req.params.id); // Buscar por Primary Key (ID)
       if (usuario) {
-        res.json(usuario);
+        const usuarioJson = usuario.toJSON();
+        delete usuarioJson.password;
+        res.json(usuarioJson);
       } else {
         res.status(404).json({ error: "Usuario no encontrado" });
       }
@@ -57,7 +67,7 @@ getById: async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: "Error al intentar eliminar" });
     }
-  }
+  },
 };
 
 export default userController;

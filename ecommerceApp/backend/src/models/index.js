@@ -70,6 +70,18 @@ async function ensureProductValidityColumns() {
     }
 }
 
+async function ensureUsuarioColumns() {
+    const queryInterface = sequelize.getQueryInterface();
+    const table = await queryInterface.describeTable('Usuario');
+
+    if (!table.role) {
+        await queryInterface.addColumn('Usuario', 'role', {
+            type: DataTypes.STRING,
+            defaultValue: 'client'
+        });
+    }
+}
+
 export async function initializeDatabase() {
     // PASO 3:
     // sync() compara modelos contra la base y crea tablas faltantes.
@@ -78,10 +90,11 @@ export async function initializeDatabase() {
     // PASO 4:
     // garantizamos vigencia en products para bases que vienen de clases previas.
     await ensureProductValidityColumns();
+    await ensureUsuarioColumns();
 
     // PASO 5:
     // cargamos seed inicial (si corresponde) desde módulo separado.
-    await seedDatabase({ Categoria, Producto });
+    await seedDatabase({ Categoria, Producto, Usuario });
 }
 
 // module.exports devuelve un objeto con varias piezas del módulo:
@@ -91,5 +104,6 @@ export async function initializeDatabase() {
 export {
     sequelize,
     Categoria,
-    Producto
+    Producto,
+    Usuario
 };

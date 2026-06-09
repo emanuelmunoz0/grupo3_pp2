@@ -81,12 +81,14 @@
 // }
 
 async function crearCardsProducto() {
+  const container = document.getElementById("catalogo");
+  container.innerHTML = "";
 
   try {
     const respuesta = await fetch('/api/productos'); // Esperamos a la red
     const productos = await respuesta.json(); // Esperamos a que se convierta a JSON
     productos.forEach((producto) => {
-      const container = document.getElementById("catalogo");
+      const productoId = producto.id_producto || producto.id;
       const colDiv = document.createElement("div");
       colDiv.classList.add("col-12", "col-sm-6", "col-md-4", "col-lg-3");
 
@@ -129,7 +131,7 @@ async function crearCardsProducto() {
           </div>
         </div>
         <div class="card-footer bg-white border-top-0">
-          <button class="btn btn-primary w-100 btn-sm fw-bold addToCartBtn" ${producto.stock === 0 ? 'disabled' : ''} id="${producto.id_producto}">
+          <button class="btn btn-primary w-100 btn-sm fw-bold addToCartBtn" ${producto.stock === 0 ? 'disabled' : ''} id="${productoId}">
             <i class="bi bi-cart-plus"></i> ${producto.stock > 0 ? 'Agregar al carrito' : 'Agotado'}
           </button>
         </div>
@@ -155,8 +157,6 @@ function updateCartDisplay(carrito) {
 }
 
 
-crearCardsProducto();
-
 async function cargarCategorias() {
   const categoryFilter = document.getElementById("category-filter");
   try {
@@ -170,23 +170,108 @@ async function cargarCategorias() {
   }
 }
 
-cargarCategorias();
- 
-
-window.addEventListener("load", (event) => {
-
-  // window.addToCart = addToCart;
-
-  const addToCartButtons = Array.from(document.getElementsByClassName("addToCartBtn"));
-  addToCartButtons.forEach((button) => {
-    
-    button.addEventListener("click", () => {
-      const productoId = button.id;
-      addToCart(productoId);
-      
-
-    
-      updateCartDisplay(carrito);
-    });
+async function loginUser(email, password) {
+  const respuesta = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
   });
+
+  const data = await respuesta.json();
+  if (!respuesta.ok) {
+    throw new Error(data.error || 'No se pudo iniciar sesión');
+  }
+
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('user', JSON.stringify(data.user));
+  await renderUI();
+}
+
+function logoutUser() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  document.getElementById("catalogo").innerHTML = "";
+  renderUI();
+}
+
+function getStoredUser() {
+  const storedUser = localStorage.getItem('user');
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedUser);
+  } catch (error) {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    return null;
+  }
+}
+
+async function renderUI() {
+  const user = getStoredUser();
+  const loginSection = document.getElementById('login-section');
+  const catalogSection = document.getElementById('catalog-section');
+  const cartSummary = document.getElementById('cart-summary');
+  const sessionStatus = document.getElementById('session-status');
+  const logoutButton = document.getElementById('logout-button');
+  const adminActionsPanel = document.getElementById('admin-actions-panel');
+
+  if (!user) {
+    loginSection.classList.remove('d-none');
+    catalogSection.classList.add('d-none');
+    cartSummary.classList.add('d-none');
+    logoutButton.classList.add('d-none');
+    adminActionsPanel.classList.add('d-none');
+    sessionStatus.textContent = 'Modo invitado';
+    return;
+  }
+
+  loginSection.classList.add('d-none');
+  catalogSection.classList.remove('d-none');
+  cartSummary.classList.remove('d-none');
+  logoutButton.classList.remove('d-none');
+  sessionStatus.textContent = `Conectado como ${user.nombre} (${user.role})`;
+
+  if (user.role === 'admin') {
+    adminActionsPanel.classList.remove('d-none');
+  } else {
+    adminActionsPanel.classList.add('d-none');
+  }
+
+  await crearCardsProducto();
+  await cargarCategorias();
+}
+
+document.getElementById('login-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  const loginMessage = document.getElementById('login-message');
+
+  loginMessage.textContent = '';
+
+  try {
+    await loginUser(email, password);
+    event.target.reset();
+  } catch (error) {
+    loginMessage.textContent = error.message;
+  }
 });
+
+document.getElementById('logout-button').addEventListener('click', logoutUser);
+
+document.getElementById('reload-products').addEventListener('click', async () => {
+  await crearCardsProducto();
+  await cargarCategorias();
+});
+
+document.getElementById('admin-action-button').addEventListener('click', () => {
+  alert('Funcionalidad en desarrollo');
+});
+
+renderUI();

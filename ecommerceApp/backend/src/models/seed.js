@@ -13,7 +13,28 @@ async function getOrCreateCategoria(Categoria, nombre) {
     return categoria;
 }
 
-async function seedDatabase({ Categoria, Producto }) {
+async function getOrCreateUsuario(Usuario, userData) {
+    const usuario = await Usuario.findOne({ where: { email: userData.email } });
+    if (!usuario) {
+        await Usuario.create(userData);
+    }
+}
+
+async function seedDatabase({ Categoria, Producto, Usuario }) {
+    await getOrCreateUsuario(Usuario, {
+        nombre: 'Admin',
+        email: 'admin@example.com',
+        password: '123456',
+        role: 'admin'
+    });
+
+    await getOrCreateUsuario(Usuario, {
+        nombre: 'Cliente',
+        email: 'cliente@example.com',
+        password: '123456',
+        role: 'client'
+    });
+
     const productsCount = await Producto.count();
     if (productsCount > 0) {
         return;
