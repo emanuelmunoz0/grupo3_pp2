@@ -61,7 +61,7 @@
 //   try {
 //     const respuesta = await fetch('/api/productos/' + id); // Esperamos a la red
 //     const producto = await respuesta.json();
-    
+
 //     console.log("Producto agregado al carrito:", producto);
 //     carrito.agregarProducto(producto.id_producto, 1, Date.now());
 
@@ -77,16 +77,34 @@
 //   } catch (error) {
 //     console.error("Error al cargar el producto:", error);
 //   }
-  
+
 // }
 
-async function crearCardsProducto() {
+async function crearCardsProducto(categoryId = "") {
   const container = document.getElementById("catalogo");
   container.innerHTML = "";
 
   try {
-    const respuesta = await fetch('/api/productos'); // Esperamos a la red
+    const endpoint = new URL("/api/productos", window.location.origin);
+
+    if (categoryId) {
+      endpoint.searchParams.set("id_categoria", categoryId);
+    }
+
+    const respuesta = await fetch(`${endpoint.pathname}${endpoint.search}`); // Esperamos a la red
     const productos = await respuesta.json(); // Esperamos a que se convierta a JSON
+
+    if (!productos.length) {
+      container.innerHTML = `
+        <div class="col-12">
+          <div class="alert alert-light border text-center mb-0">
+            No hay productos para la categoría seleccionada.
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     productos.forEach((producto) => {
       const productoId = producto.id_producto || producto.id;
       const colDiv = document.createElement("div");
@@ -131,8 +149,8 @@ async function crearCardsProducto() {
           </div>
         </div>
         <div class="card-footer bg-white border-top-0">
-          <button class="btn btn-primary w-100 btn-sm fw-bold addToCartBtn" ${producto.stock === 0 ? 'disabled' : ''} id="${productoId}">
-            <i class="bi bi-cart-plus"></i> ${producto.stock > 0 ? 'Agregar al carrito' : 'Agotado'}
+          <button class="btn btn-primary w-100 btn-sm fw-bold addToCartBtn" ${producto.stock === 0 ? "disabled" : ""} id="${productoId}">
+            <i class="bi bi-cart-plus"></i> ${producto.stock > 0 ? "Agregar al carrito" : "Agotado"}
           </button>
         </div>
       `;
@@ -145,59 +163,64 @@ async function crearCardsProducto() {
   }
 }
 
-
 function updateCartDisplay(carrito) {
   const cartItemsContainer = document.getElementById("cart-items");
   const cartTotalContainer = document.getElementById("cart-total");
-  
-  cartItemsContainer.textContent = carrito.ItemCarrito.length;
-  
-  const total = orden.calcularTotal();
-  cartTotalContainer.textContent = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
-}
 
+  cartItemsContainer.textContent = carrito.ItemCarrito.length;
+
+  const total = orden.calcularTotal();
+  cartTotalContainer.textContent = total.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+  });
+}
 
 async function cargarCategorias() {
   const categoryFilter = document.getElementById("category-filter");
   try {
-    const respuesta = await fetch('/api/categorias'); // Esperamos a la red
+    const respuesta = await fetch("/api/categorias"); // Esperamos a la red
     const categorias = await respuesta.json(); // Esperamos a que se convierta a JSON
-     categoryFilter.innerHTML =
-    '<option value="">Todas las categorías</option>' +
-    categorias.map(category => `<option value="${category.id_categoria}">${category.nombre}</option>`).join('');
-  }catch (error) {
+    categoryFilter.innerHTML =
+      '<option value="">Todas las categorías</option>' +
+      categorias
+        .map(
+          (category) =>
+            `<option value="${category.id_categoria}">${category.nombre}</option>`,
+        )
+        .join("");
+  } catch (error) {
     console.error("Error al cargar las categorías:", error);
   }
 }
 
 async function loginUser(email, password) {
-  const respuesta = await fetch('/api/auth/login', {
-    method: 'POST',
+  const respuesta = await fetch("/api/auth/login", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, password }),
   });
 
   const data = await respuesta.json();
   if (!respuesta.ok) {
-    throw new Error(data.error || 'No se pudo iniciar sesión');
+    throw new Error(data.error || "No se pudo iniciar sesión");
   }
 
-  localStorage.setItem('token', data.token);
-  localStorage.setItem('user', JSON.stringify(data.user));
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
   await renderUI();
 }
 
 function logoutUser() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
   document.getElementById("catalogo").innerHTML = "";
   renderUI();
 }
 
 function getStoredUser() {
-  const storedUser = localStorage.getItem('user');
+  const storedUser = localStorage.getItem("user");
   if (!storedUser) {
     return null;
   }
@@ -205,73 +228,85 @@ function getStoredUser() {
   try {
     return JSON.parse(storedUser);
   } catch (error) {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     return null;
   }
 }
 
 async function renderUI() {
   const user = getStoredUser();
-  const loginSection = document.getElementById('login-section');
-  const catalogSection = document.getElementById('catalog-section');
-  const cartSummary = document.getElementById('cart-summary');
-  const sessionStatus = document.getElementById('session-status');
-  const logoutButton = document.getElementById('logout-button');
-  const adminActionsPanel = document.getElementById('admin-actions-panel');
+  const loginSection = document.getElementById("login-section");
+  const catalogSection = document.getElementById("catalog-section");
+  const cartSummary = document.getElementById("cart-summary");
+  const sessionStatus = document.getElementById("session-status");
+  const logoutButton = document.getElementById("logout-button");
+  const adminActionsPanel = document.getElementById("admin-actions-panel");
 
   if (!user) {
-    loginSection.classList.remove('d-none');
-    catalogSection.classList.add('d-none');
-    cartSummary.classList.add('d-none');
-    logoutButton.classList.add('d-none');
-    adminActionsPanel.classList.add('d-none');
-    sessionStatus.textContent = 'Modo invitado';
+    loginSection.classList.remove("d-none");
+    catalogSection.classList.add("d-none");
+    cartSummary.classList.add("d-none");
+    logoutButton.classList.add("d-none");
+    adminActionsPanel.classList.add("d-none");
+    sessionStatus.textContent = "Modo invitado";
     return;
   }
 
-  loginSection.classList.add('d-none');
-  catalogSection.classList.remove('d-none');
-  cartSummary.classList.remove('d-none');
-  logoutButton.classList.remove('d-none');
+  loginSection.classList.add("d-none");
+  catalogSection.classList.remove("d-none");
+  cartSummary.classList.remove("d-none");
+  logoutButton.classList.remove("d-none");
   sessionStatus.textContent = `Conectado como ${user.nombre} (${user.role})`;
 
-  if (user.role === 'admin') {
-    adminActionsPanel.classList.remove('d-none');
+  if (user.role === "admin") {
+    adminActionsPanel.classList.remove("d-none");
   } else {
-    adminActionsPanel.classList.add('d-none');
+    adminActionsPanel.classList.add("d-none");
   }
 
   await crearCardsProducto();
   await cargarCategorias();
 }
 
-document.getElementById('login-form').addEventListener('submit', async (event) => {
-  event.preventDefault();
+document
+  .getElementById("login-form")
+  .addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  const email = document.getElementById('login-email').value;
-  const password = document.getElementById('login-password').value;
-  const loginMessage = document.getElementById('login-message');
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+    const loginMessage = document.getElementById("login-message");
 
-  loginMessage.textContent = '';
+    loginMessage.textContent = "";
 
-  try {
-    await loginUser(email, password);
-    event.target.reset();
-  } catch (error) {
-    loginMessage.textContent = error.message;
-  }
-});
+    try {
+      await loginUser(email, password);
+      event.target.reset();
+    } catch (error) {
+      loginMessage.textContent = error.message;
+    }
+  });
 
-document.getElementById('logout-button').addEventListener('click', logoutUser);
+document.getElementById("logout-button").addEventListener("click", logoutUser);
 
-document.getElementById('reload-products').addEventListener('click', async () => {
-  await crearCardsProducto();
-  await cargarCategorias();
-});
+document
+  .getElementById("reload-products")
+  .addEventListener("click", async () => {
+    const selectedCategory = document.getElementById("category-filter").value;
+    await crearCardsProducto(selectedCategory);
+    await cargarCategorias();
+    document.getElementById("category-filter").value = selectedCategory;
+  });
 
-document.getElementById('admin-action-button').addEventListener('click', () => {
-  alert('Funcionalidad en desarrollo');
+document
+  .getElementById("category-filter")
+  .addEventListener("change", async (event) => {
+    await crearCardsProducto(event.target.value);
+  });
+
+document.getElementById("admin-action-button").addEventListener("click", () => {
+  alert("Funcionalidad en desarrollo");
 });
 
 renderUI();

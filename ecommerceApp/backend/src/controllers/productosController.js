@@ -2,14 +2,21 @@ import productosDb from "../../database/products_db.js";
 import Producto from "../models/Producto.js";
 import Categoria from "../models/Categoria.js";
 
-
 const productsController = {
   getAll: async (req, res) => {
     try {
+      const where = {};
+      const categoriaId = Number(req.query.id_categoria);
+
+      if (Number.isInteger(categoriaId) && categoriaId > 0) {
+        where.id_categoria = categoriaId;
+      }
+
       const productos = await Producto.findAll({
-       where: { id_categoria : 2},
-       order: [['id', 'ASC']]
-    });
+        where,
+        include: [{ model: Categoria, as: "categoria" }],
+        order: [["id", "ASC"]],
+      });
       res.json(productos);
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los productos" });
@@ -69,7 +76,7 @@ const productsController = {
     } catch (error) {
       res.status(500).json({ error: "Error al intentar eliminar" });
     }
-  }
+  },
 };
 
 // function hayStockProducto(id_producto, cantidad) {
