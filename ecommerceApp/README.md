@@ -1,41 +1,34 @@
 # EcommerceApp
 
-Aplicación e-commerce full stack con frontend estático y backend en Node.js + Express + Sequelize + SQLite.
+EcommerceApp es una aplicacion full stack con frontend estatico y backend en Node.js, Express, Sequelize y SQLite.
+Incluye autenticacion con JWT, catalogo publico, panel de administracion, gestion de productos y categorias, y carga automatica de datos iniciales.
 
-El sistema incluye autenticación con JWT, gestión básica de entidades de negocio, carga automática de datos iniciales y filtrado dinámico de productos por categoría.
+## Resumen rapido
 
-## Descripción general
+- Frontend: `frontend/`
+- Backend: `backend/`
+- Servidor local: `http://localhost:3000`
+- Base de datos: SQLite
+- Autenticacion: JWT
 
-La aplicación está dividida en dos partes:
+## Caracteristicas principales
 
-- `frontend/`: interfaz web estática servida por Express.
-- `backend/`: API REST, autenticación, modelos y acceso a datos.
-
-Cuando el servidor inicia:
-
-1. Carga variables de entorno.
-2. Inicializa Sequelize.
-3. Sincroniza los modelos con la base de datos.
-4. Asegura columnas heredadas en `Producto` y `Usuario`.
-5. Ejecuta un seed inicial si todavía no hay productos cargados.
-6. Expone el frontend y las rutas de la API en `http://localhost:3000`.
-
-## Stack tecnológico
-
-- Node.js
-- Express 5
-- Sequelize 6
-- SQLite 3
-- JSON Web Token con implementación propia sobre `crypto`
-- `bcryptjs` para hash de contraseñas
-- Bootstrap 5 en el frontend
+- Login de usuarios con rol `admin` o `client`.
+- Catalogo publico de productos con paginacion.
+- Filtro de productos por categoria desde el frontend.
+- Panel de administracion separado en `admin.html`.
+- Edicion en tabla de productos y categorias.
+- Filtro avanzado de publicaciones en el panel admin.
+- Posibilidad de ocultar una categoria completa y ocultar automaticamente sus productos en el catalogo publico.
+- Seed inicial con usuarios, categorias y productos de ejemplo.
 
 ## Estructura del proyecto
 
 ```text
 ecommerceApp/
   backend/
-    database/
+    server.js
+    package.json
     src/
       config/
       controllers/
@@ -43,42 +36,22 @@ ecommerceApp/
       models/
       routes/
       utils/
-    package.json
-    server.js
   frontend/
+    index.html
+    admin.html
+    login.html
     css/
     js/
-    index.html
 ```
-
-## Funcionalidades principales
-
-- Inicio de sesión de usuarios.
-- Gestión de productos con altas, bajas, modificaciones y consulta.
-- Filtrado dinámico del catálogo por categoría.
-- Gestión de categorías.
-- Gestión de usuarios.
-- Gestión de carrito, cupones, órdenes de compra y detalle de órdenes.
-- Seed automático con usuarios y productos de ejemplo.
-- Restricción de acciones administrativas mediante token JWT.
-
-## Categorías actuales
-
-El seed inicial crea dos categorías:
-
-- `Calefacción`
-- `Cocina`
-
-Los productos se vinculan con su categoría usando el campo `id_categoria`.
 
 ## Requisitos
 
-- Node.js 18 o superior recomendado.
-- npm.
+- Node.js 18 o superior recomendado
+- npm
 
-## Instalación
+## Instalacion
 
-Desde la carpeta del backend:
+Instalar dependencias desde la carpeta `backend/`:
 
 ```bash
 cd backend
@@ -87,122 +60,75 @@ npm install
 
 ## Variables de entorno
 
-El backend usa variables de entorno para la base de datos. Crear un archivo `.env` dentro de `backend/` con un contenido similar a este:
+Crear un archivo `.env` dentro de `backend/`:
 
 ```env
 DB_DIALECT=sqlite
-DB_STORAGE=./database.sqlite
+DB_STORAGE=./ecommerce.sqlite
 JWT_SECRET=clave_local_para_desarrollo
 ```
 
 Notas:
 
-- `DB_DIALECT` debe ser compatible con Sequelize. En este proyecto se usa `sqlite`.
-- `DB_STORAGE` indica la ruta del archivo SQLite.
-- `JWT_SECRET` es opcional, pero recomendado.
-- Si `JWT_SECRET` no existe, el sistema usa un valor por defecto definido en código.
+- `DB_DIALECT` debe quedar en `sqlite` para este proyecto.
+- `DB_STORAGE` apunta al archivo SQLite.
+- `JWT_SECRET` es recomendable para firmar tokens de forma consistente.
 
-## Ejecución
+## Ejecucion
 
-Desde `backend/`:
+Levantar el backend desde `backend/`:
 
 ```bash
 npm start
 ```
 
-El script configurado es:
+El script usa `node --watch server.js`, por lo que reinicia el servidor al detectar cambios.
 
-```json
-"start": "node --watch server.js"
-```
-
-La aplicación queda disponible en:
+Una vez levantado, el frontend queda disponible en:
 
 - `http://localhost:3000`
 
-## Seed inicial
+## Credenciales de prueba
 
-En el primer arranque, si no existen productos, el sistema carga automáticamente:
+El seed inicial crea dos usuarios listos para usar:
 
-- Un usuario administrador.
-- Un usuario cliente.
-- Dos categorías.
-- Cinco productos de ejemplo.
-
-### Credenciales de prueba
-
-Administrador:
+### Administrador
 
 - Email: `admin@gmail.com`
 - Password: `123456`
 
-Cliente:
+### Cliente
 
 - Email: `cliente@gmail.com`
 - Password: `123456`
 
-## Autenticación y autorización
+## Comportamiento del sistema
 
-### Login
+- Si no hay productos en la base, el sistema ejecuta el seed automaticamente.
+- El frontend publico muestra solo categorias visibles.
+- Si una categoria se oculta desde el panel admin, sus productos dejan de aparecer en el catalogo publico hasta que se vuelvan a mover manualmente a otra categoria o se reactive la categoria.
+- El panel admin puede ver y editar todas las categorias cuando envia su token de autenticacion.
 
-Ruta:
+## Frontend
 
-- `POST /api/auth/login`
+### `index.html`
 
-Body esperado:
+- Catalogo de productos.
+- Boton de filtro por categoria.
+- Boton de carrito.
+- Boton de acceso al panel admin si el usuario tiene rol administrador.
 
-```json
-{
-  "email": "admin@example.com",
-  "password": "123456"
-}
-```
+### `admin.html`
 
-Respuesta exitosa:
+- Selector entre publicaciones y categorias.
+- Edicion de productos en tabla.
+- Edicion de categorias en tabla.
+- Cambio de visibilidad de categorias.
+- Filtros avanzados para publicaciones.
 
-```json
-{
-  "success": true,
-  "token": "jwt-token",
-  "user": {
-    "id": 1,
-    "nombre": "Admin",
-    "email": "admin@example.com",
-    "role": "admin"
-  }
-}
-```
+## API principal
 
-### Uso del token
-
-Las rutas protegidas esperan el header:
-
-```http
-Authorization: Bearer <token>
-```
-
-### Restricciones actuales
-
-- Crear producto: solo admin.
-- Actualizar producto: solo admin.
-- Eliminar producto: solo admin.
-
-## Catálogo y filtro por categoría
-
-El frontend carga el catálogo consumiendo la API de productos.
-
-Comportamiento actual:
-
-- Carga todas las categorías desde `GET /api/categorias`.
-- Carga productos desde `GET /api/productos`.
-- Si el usuario selecciona una categoría, envía `GET /api/productos?id_categoria=<id>`.
-- Si no hay coincidencias, muestra un mensaje en el catálogo.
-
-Esto hace que el filtrado dependa de los datos reales de la base y no de valores hardcodeados en el frontend.
-
-## Endpoints principales
-
-### Autenticación
+### Autenticacion
 
 - `POST /api/auth/login`
 
@@ -210,14 +136,22 @@ Esto hace que el filtrado dependa de los datos reales de la base y no de valores
 
 - `GET /api/productos`
 - `GET /api/productos/:id`
-- `GET /api/admin/productos` (admin, paginado en lotes de 10)
+- `GET /api/admin/productos`
 - `POST /api/productos`
 - `PUT /api/productos/:id`
 - `DELETE /api/productos/:id`
 
-Filtro soportado:
+Filtro publico por categoria:
 
 - `GET /api/productos?id_categoria=1`
+
+### Categorias
+
+- `GET /api/categorias`
+- `GET /api/categorias/:id`
+- `POST /api/categorias`
+- `PUT /api/categorias/:id`
+- `DELETE /api/categorias/:id`
 
 ### Usuarios
 
@@ -226,15 +160,7 @@ Filtro soportado:
 - `PUT /api/usuarios/:id`
 - `DELETE /api/usuarios/:id`
 
-### Categorías
-
-- `GET /api/categorias`
-- `GET /api/categorias/:id`
-- `POST /api/categorias`
-- `PUT /api/categorias/:id`
-- `DELETE /api/categorias/:id`
-
-### Órdenes de compra
+### Ordenes
 
 - `GET /api/ordenes/`
 - `GET /api/ordenes/:id`
@@ -242,7 +168,7 @@ Filtro soportado:
 - `PUT /api/ordenes/:id`
 - `DELETE /api/ordenes/:id`
 
-### Detalle de órdenes
+### Detalle de ordenes
 
 - `GET /api/detalles/`
 - `GET /api/detalles/:id`
@@ -270,8 +196,6 @@ Filtro soportado:
 
 - `POST /api/checkout`
 
-Actualmente esta ruta recibe el carrito enviado por el frontend y responde con un mensaje de confirmación.
-
 ## Modelos relevantes
 
 ### Usuario
@@ -281,18 +205,16 @@ Actualmente esta ruta recibe el carrito enviado por el frontend y responde con u
 - `password`
 - `es_corporativo`
 - `role`
-- `orden_compra`
-
-La contraseña se guarda hasheada antes de persistir el usuario.
 
 ### Categoria
 
 - `id_categoria`
 - `nombre`
+- `visible`
 
 ### Producto
 
-- `id` o identificador generado por Sequelize
+- `id`
 - `nombre`
 - `precio`
 - `stock`
@@ -304,7 +226,7 @@ La contraseña se guarda hasheada antes de persistir el usuario.
 - `validoDesde`
 - `validoHasta`
 
-## Relaciones de datos
+## Relaciones
 
 - Un `Usuario` tiene muchas `OrdenCompra`.
 - Una `OrdenCompra` tiene muchos `DetalleOrden`.
@@ -312,51 +234,20 @@ La contraseña se guarda hasheada antes de persistir el usuario.
 - Una `Categoria` tiene muchos `Producto`.
 - Un `Producto` pertenece a una `Categoria`.
 
-## Frontend
+## Desarrollo
 
-La interfaz está en `frontend/` y se sirve desde Express como archivos estáticos.
+- El proyecto usa ES Modules.
+- No hay una suite de tests automatizados lista para ejecutar.
+- El backend sirve el frontend estatico desde Express.
 
-Pantallas y bloques actuales:
+## Estado actual
 
-- Login.
-- Estado de sesión.
-- Catálogo de productos.
-- Selector de categoría.
-- Botón de recarga.
-- Botón de carrito.
-- Panel admin separado en `admin.html` con edición por fila, descuento porcentual y paginación.
+El sistema esta preparado para:
 
-Comportamiento visible:
-
-- Si no hay sesión, se muestra el login.
-- Si el login es exitoso, se renderiza el catálogo.
-- Si el usuario es admin, aparece el botón de panel admin.
-- El botón de logout limpia `localStorage`.
-
-## Observaciones actuales
-
-- El frontend y el backend están integrados en un solo servidor Express.
-- No hay una suite de tests automatizados implementada.
-- El script `test` actual no ejecuta pruebas reales.
-- La ruta del frontend se expone desde `express.static("../frontend")`.
-- El proyecto usa ES Modules (`"type": "module"`).
-
-## Posibles mejoras
-
-- Agregar un `package.json` en la raíz para simplificar el arranque del proyecto completo.
-- Incorporar tests para controllers, modelos y middleware.
-- Documentar ejemplos completos de request y response para cada endpoint.
-- Completar el flujo funcional del carrito y checkout en frontend.
-- Proteger más rutas con autenticación y roles.
-- Agregar validaciones de payload más estrictas.
-
-## Estado actual del sistema
-
-El sistema está preparado para:
-
-- levantar una base SQLite automáticamente,
-- crear usuarios y productos semilla,
+- levantar la base SQLite automaticamente,
+- crear datos semilla,
 - autenticar usuarios,
-- mostrar el catálogo,
-- filtrar productos por categoría de forma dinámica,
-- y administrar productos desde rutas protegidas.
+- mostrar catalogo y carrito,
+- filtrar productos por categoria,
+- administrar productos y categorias desde un panel dedicado,
+- y ocultar categorias completas sin borrar sus productos.
