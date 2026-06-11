@@ -16,6 +16,18 @@ const Producto = sequelize.define('Producto', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
+    descuento: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    porcentajeDescuento: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0
+    },
+    visible: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
     image: {
         type: DataTypes.STRING,
         defaultValue: "https://via.placeholder.com/150" // Imagen por defecto

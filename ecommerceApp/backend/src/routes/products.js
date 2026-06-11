@@ -8,6 +8,8 @@ router.get('/productos', productosController.getAll);
 
 router.get('/productos/:id', productosController.getById);
 
+router.get('/admin/productos', authenticateToken, isAdmin, productosController.getAdminAll);
+
 router.post('/productos', authenticateToken, isAdmin, productosController.create);
 
 router.put('/productos/:id', authenticateToken, isAdmin, productosController.update);
