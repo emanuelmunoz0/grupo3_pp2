@@ -1,190 +1,127 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mi E-Commerce</title>
-    <!-- Link a Bootstrap 5 (CDN) -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-      crossorigin="anonymous"
-    />
-    <!-- Bootstrap Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    />
-    <style>
-      body {
-        background-color: #f5f7fa;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
 
-      .navbar {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productos - NeoData Shop</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
 
-      .catalog-header {
-        margin-bottom: 2rem;
-      }
-
-      .catalog-header h2 {
-        color: #2c3e50;
-        font-weight: 700;
-        border-bottom: 3px solid #007bff;
-        padding-bottom: 0.5rem;
-        display: inline-block;
-      }
-
-      .card {
-        border-radius: 10px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-      }
-
-      .card:hover {
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
-      }
-
-      .card-img-top {
-        object-fit: cover;
-        background-color: #f0f0f0;
-      }
-
-      .card-title {
-        font-size: 0.95rem;
-        color: #2c3e50;
-        min-height: 2.5rem;
-        line-height: 1.2;
-      }
-
-      .card-footer {
-        padding: 1rem;
-      }
-
-      .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-        font-weight: 600;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-      }
-
-      .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-        transform: scale(1.02);
-      }
-
-      .badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.4rem 0.6rem;
-      }
-
-      @media (max-width: 768px) {
-        .catalog-header h2 {
-          font-size: 1.5rem;
-        }
-
-        .card-title {
-          font-size: 0.85rem;
-        }
-      }
-    </style>
-  </head>
-  <body class="bg-light">
-    <!-- Barra de Navegación -->
-    <nav class="navbar navbar-dark bg-dark">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">🛍️ NeoData Shop</span>
-        <div class="d-flex gap-2 align-items-center">
-          <span id="session-status" class="text-light small">Modo invitado</span>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand mb-0 h1" href="index.html">NeoData Shop</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+        aria-controls="mainNavbar" aria-expanded="false" aria-label="Abrir menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <div
+          class="navbar-menu-stack d-flex flex-column flex-lg-row gap-2 align-items-lg-center ms-lg-auto pt-3 pt-lg-0">
+          <span id="session-status" class="navbar-text text-light small">Modo invitado</span>
+          <a id="admin-link" href="admin.html" class="btn btn-outline-info btn-sm d-none">
+            <i class="bi bi-sliders"></i> Panel de administración
+          </a>
           <button id="logout-button" class="btn btn-outline-light btn-sm d-none">
             Cerrar sesión
           </button>
-          <button class="btn btn-outline-light">
+          <button id="cart-button" type="button" class="btn btn-outline-light btn-sm">
             🛒 Carrito (<span id="cart-count">0</span>)
           </button>
         </div>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <!-- Contenedor Principal -->
-    <div class="container mt-5 mb-5" id="app">
-      <section id="login-section" class="row justify-content-center">
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card shadow-sm border-0">
-            <div class="card-body">
-              <h2 class="h4 mb-4">Iniciar sesión</h2>
-              <form id="login-form">
-                <div class="mb-3">
-                  <label for="login-email" class="form-label">Email</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="login-email"
-                    autocomplete="email"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="login-password" class="form-label">Password</label>
-                  <input
-                    type="password"
-                    class="form-control"
-                    id="login-password"
-                    autocomplete="current-password"
-                    required
-                  />
-                </div>
-                <p id="login-message" class="text-danger small mb-3"></p>
-                <button type="submit" class="btn btn-primary w-100">
-                  Ingresar
-                </button>
-              </form>
-            </div>
-          </div>
+  <div class="container mt-4 mt-md-5 mb-5" id="app">
+    <section id="catalog-section">
+      <div class="row g-3 mb-4 align-items-end">
+        <div class="col-12 col-sm-6 col-md-6 col-lg-4 d-flex flex-wrap gap-2">
+          <button id="clear-filter-inline-button" class="btn btn-outline-secondary d-none">
+            <i class="bi bi-x-circle"></i> Limpiar filtro
+          </button>
+          <button id="filter-button" class="btn btn-outline-primary">
+            <i class="bi bi-funnel"></i> Filtrar
+          </button>
         </div>
-      </section>
+      </div>
 
-      <section id="catalog-section" class="d-none">
-        <div class="row mb-4 align-items-end">
-          <div class="col-md-4">
-            <label for="category-filter" class="form-label">Filtrar por categoría</label>
-            <select id="category-filter" class="form-select">
-              <option value="">Todas las categorías</option>
-            </select>
-          </div>
-          <div class="col-md-3 d-grid">
-            <button id="reload-products" class="btn btn-outline-primary">Recargar datos</button>
-          </div>
-          <div class="col-md-3 d-grid d-none" id="admin-actions-panel">
-            <button id="admin-action-button" class="btn btn-warning">
-              Panel admin
+      <div id="active-category-banner" class="alert alert-info py-2 small d-none" role="status"></div>
+
+      <div class="catalog-header">
+        <h2>Catálogo de Productos</h2>
+      </div>
+      <div class="row g-4" id="catalogo"></div>
+      <nav class="mt-4" aria-label="Paginación de productos">
+        <ul id="catalog-pagination" class="pagination pagination-sm justify-content-center flex-wrap mb-0 catalog-pagination"></ul>
+      </nav>
+    </section>
+  </div>
+
+  <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="filterModalLabel">Filtrar productos</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3">
+            Elegí una categoría para ver solo los productos que coincidan.
+          </p>
+          <div id="category-filter-options" class="d-flex flex-wrap gap-2"></div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button type="button" id="apply-filter-button" class="btn btn-primary">
+              Aplicar
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="catalog-header">
-          <h2>Catálogo de Productos</h2>
+  <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="cartModalLabel">Carrito de compras</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
-        <div class="row g-4" id="catalogo"></div>
-      </section>
+        <div class="modal-body">
+          <div id="cart-empty-state" class="alert alert-light border text-center mb-0 d-none">
+            Tu carrito está vacío.
+          </div>
+          <div id="cart-items-list" class="d-grid gap-3"></div>
+          <nav class="mt-4" aria-label="Paginación del carrito">
+            <ul id="cart-pagination" class="pagination pagination-sm justify-content-center flex-wrap mb-0 admin-pagination"></ul>
+          </nav>
+        </div>
+        <div class="modal-footer d-flex flex-column flex-sm-row justify-content-between align-items-stretch gap-3">
+          <div class="fw-semibold">
+            Total a pagar: <span id="cart-modal-total">$0,00</span>
+          </div>
+          <div class="d-flex flex-column flex-sm-row gap-2">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary">Siguiente</button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="cart-summary" class="container mb-4 d-none">
-      Carrito: <span id="cart-items"></span>
-      Total: $<span id="cart-total">0.00</span>
-    </div>
-    <!-- Link a nuestra lógica de JavaScript (Para la Actividad 2) -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-      crossorigin="anonymous"
-    ></script>
-    <script type="module" src="js/app.js"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+
 </html>

@@ -133,12 +133,12 @@ En el primer arranque, si no existen productos, el sistema carga automáticament
 
 Administrador:
 
-- Email: `admin@example.com`
+- Email: `admin@gmail.com`
 - Password: `123456`
 
 Cliente:
 
-- Email: `cliente@example.com`
+- Email: `cliente@gmail.com`
 - Password: `123456`
 
 ## Autenticación y autorización
@@ -210,6 +210,7 @@ Esto hace que el filtrado dependa de los datos reales de la base y no de valores
 
 - `GET /api/productos`
 - `GET /api/productos/:id`
+- `GET /api/admin/productos` (admin, paginado en lotes de 10)
 - `POST /api/productos`
 - `PUT /api/productos/:id`
 - `DELETE /api/productos/:id`
@@ -295,6 +296,9 @@ La contraseña se guarda hasheada antes de persistir el usuario.
 - `nombre`
 - `precio`
 - `stock`
+- `descuento`
+- `porcentajeDescuento`
+- `visible`
 - `image`
 - `id_categoria`
 - `validoDesde`
@@ -320,7 +324,7 @@ Pantallas y bloques actuales:
 - Selector de categoría.
 - Botón de recarga.
 - Botón de carrito.
-- Panel admin visual, aún en desarrollo.
+- Panel admin separado en `admin.html` con edición por fila, descuento porcentual y paginación.
 
 Comportamiento visible:
 
