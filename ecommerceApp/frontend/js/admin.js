@@ -242,6 +242,11 @@ function clearProductFilters() {
   applyProductSearch(1);
 }
 
+function getExportFileName(prefix) {
+  const dateStamp = new Date().toISOString().slice(0, 10);
+  return `${prefix}_${dateStamp}.xlsx`;
+}
+
 function getFilteredProducts() {
   const filters = state.productFilters;
   return state.allProducts.filter((producto) => {
@@ -295,6 +300,71 @@ function getFilteredProducts() {
 
     return true;
   });
+}
+
+function buildProductExportRows(products) {
+  return products.map((producto) => {
+    const productId = getProductoId(producto);
+    const categoryId = Number(producto.id_categoria ?? 0);
+    const categoryName =
+      state.categories.find((item) => String(item.id_categoria) === String(categoryId))?.nombre ??
+      producto.categoria?.nombre ??
+      `Categoría #${categoryId || "?"}`;
+
+    return {
+      ID: productId,
+      Título: String(producto.nombre ?? ""),
+      Categoría: String(categoryName),
+      "ID categoría": Number.isFinite(categoryId) && categoryId > 0 ? categoryId : "",
+      Precio: Number(producto.precio ?? 0),
+      Stock: Number(producto.stock ?? 0),
+      Imagen: String(producto.image ?? ""),
+      Descuento: producto.descuento === true ? "Activo" : "Inactivo",
+      "% Descuento": producto.descuento === true ? Number(producto.porcentajeDescuento ?? 0) : 0,
+      Visibilidad: producto.visible !== false ? "Visible" : "Oculto",
+    };
+  });
+}
+
+async function exportProductsToXlsx() {
+  if (state.activeView !== "products") {
+    setMessage("La exportación solo está disponible en publicaciones.", "warning");
+    return;
+  }
+
+  if (typeof XLSX === "undefined") {
+    setMessage("No se pudo cargar la librería necesaria para exportar a Excel.", "danger");
+    return;
+  }
+
+  state.productFilters = readProductFiltersFromInputs();
+  const filteredProducts = getFilteredProducts();
+
+  if (!filteredProducts.length) {
+    setMessage("No hay publicaciones para exportar con los filtros actuales.", "warning");
+    return;
+  }
+
+  const worksheet = XLSX.utils.json_to_sheet(buildProductExportRows(filteredProducts));
+  worksheet["!autofilter"] = { ref: worksheet["!ref"] };
+  worksheet["!cols"] = [
+    { wch: 8 },
+    { wch: 30 },
+    { wch: 28 },
+    { wch: 14 },
+    { wch: 12 },
+    { wch: 12 },
+    { wch: 48 },
+    { wch: 12 },
+    { wch: 14 },
+    { wch: 14 },
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Productos");
+  XLSX.writeFile(workbook, getExportFileName("productos_admin"));
+
+  setMessage(`Se exportaron ${filteredProducts.length} publicaciones a Excel.`, "success");
 }
 
 function renderProductPagination(totalItems) {
@@ -1250,6 +1320,8 @@ document.getElementById("categories-view-button").addEventListener("click", asyn
 });
 
 document.getElementById("create-category-button").addEventListener("click", handleCreateCategory);
+
+document.getElementById("export-products-button").addEventListener("click", exportProductsToXlsx);
 
 [
   "filter-product-id",

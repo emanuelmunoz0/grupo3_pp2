@@ -8,7 +8,7 @@ import carritoRouter from './src/routes/carrito.js';
 import cuponRouter from './src/routes/cupon.js';
 import categoriaRouter from './src/routes/categoria.js';
 import authRouter from './src/routes/auth.js';
-import { initializeDatabase } from './src/models/index.js';
+import { initializeDatabase, Producto, sequelize } from './src/models/index.js';
 import 'dotenv/config';
 
 const app = express();
@@ -27,12 +27,74 @@ app.use('/api/carrito', carritoRouter);
 app.use('/api/cupon', cuponRouter);
 app.use('/api/categorias', categoriaRouter);
 
-app.post('/api/checkout', (req, res) => {
-    const carritoRecibido = req.body;
+app.post('/api/checkout', async (req, res) => {
+    try {
+        const items = Array.isArray(req.body?.items) ? req.body.items : [];
+        const normalizedItems = new Map();
 
-    console.log('Carrito recibido:', carritoRecibido);
+        for (const item of items) {
+            const productId = Number(item?.productId ?? item?.id ?? item?.product?.id);
+            const quantity = Number.parseInt(item?.quantity ?? 0, 10);
 
-    res.json({ message: 'Compra recibida exitosamente' });
+            if (!Number.isInteger(productId) || productId <= 0) {
+                return res.status(400).json({ error: 'Hay un producto inválido en el carrito' });
+            }
+
+            if (!Number.isInteger(quantity) || quantity <= 0) {
+                return res.status(400).json({ error: 'La cantidad de un producto es inválida' });
+            }
+
+            normalizedItems.set(productId, (normalizedItems.get(productId) ?? 0) + quantity);
+        }
+
+        if (normalizedItems.size === 0) {
+            return res.status(400).json({ error: 'El carrito está vacío' });
+        }
+
+        const result = await sequelize.transaction(async (transaction) => {
+            const purchasedItems = [];
+            let subtotal = 0;
+
+            for (const [productId, quantity] of normalizedItems.entries()) {
+                const producto = await Producto.findByPk(productId, { transaction });
+
+                if (!producto) {
+                    throw new Error(`El producto ${productId} no existe`);
+                }
+
+                if (Number(producto.stock ?? 0) < quantity) {
+                    throw new Error(`No hay stock suficiente para "${producto.nombre}"`);
+                }
+
+                const previousStock = Number(producto.stock ?? 0);
+                const newStock = previousStock - quantity;
+
+                await producto.update({ stock: newStock }, { transaction });
+
+                purchasedItems.push({
+                    productId,
+                    quantity,
+                    previousStock,
+                    newStock,
+                });
+
+                subtotal += Number(producto.precio ?? 0) * quantity;
+            }
+
+            return {
+                purchasedItems,
+                subtotal,
+            };
+        });
+
+        res.json({
+            message: 'Compra finalizada correctamente',
+            subtotal: result.subtotal,
+            items: result.purchasedItems,
+        });
+    } catch (error) {
+        res.status(400).json({ error: error.message || 'No se pudo finalizar la compra' });
+    }
 });
 
 // Encendemos el servidor

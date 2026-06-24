@@ -20,8 +20,14 @@ async function getOrCreateProducto(Producto, productoData) {
   }
 }
 
+async function getOrCreateCupon(Cupon, cuponData) {
+  const existente = await Cupon.findOne({ where: { nombre: cuponData.nombre } });
+  if (!existente) {
+    await Cupon.create(cuponData);
+  }
+}
 
-async function seedDatabase({ Categoria, Producto, Usuario }) {
+async function seedDatabase({ Categoria, Producto, Usuario, Cupon }) {
   await getOrCreateUsuario(Usuario, {
     nombre: 'Administrador',
     email: 'admin@gmail.com',
@@ -34,6 +40,15 @@ async function seedDatabase({ Categoria, Producto, Usuario }) {
     email: 'cliente@gmail.com',
     password: '123456',
     role: 'client',
+  });
+
+  await getOrCreateCupon(Cupon, {
+    nombre: 'CUPON10',
+    descuento: 10,
+    validoDesde: '2024-01-01',
+    validoHasta: '2099-12-31',
+    fecha_vencimiento: '2099-12-31',
+    activo: true,
   });
 
   const categoryNames = {

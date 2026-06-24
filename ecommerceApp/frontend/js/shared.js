@@ -250,6 +250,25 @@ export async function fetchAdminProducts({ page = 1, limit = 10 } = {}) {
   });
 }
 
+export async function fetchCouponByCode(code) {
+  const endpoint = new URL("/api/cupon/validar", window.location.origin);
+  endpoint.searchParams.set("codigo", String(code ?? "").trim());
+
+  return apiRequest(endpoint);
+}
+
+export async function checkoutCart(items) {
+  return apiRequest("/api/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      items: Array.isArray(items) ? items : [],
+    }),
+  });
+}
+
 export async function updateProduct(productId, payload) {
   return apiRequest(`/api/productos/${productId}`, {
     method: "PUT",

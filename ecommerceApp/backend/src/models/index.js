@@ -8,6 +8,7 @@ import OrdenCompra from './OrdenCompra.js';
 import DetalleOrden from './DetalleOrden.js';
 import Producto from './Producto.js';
 import Categoria from './Categoria.js';
+import { Cupon } from './Cupon.js';
 
 import seedDatabase from './seed.js';
 
@@ -119,6 +120,28 @@ async function ensureCategoryColumns() {
     }
 }
 
+async function ensureCouponColumns() {
+    const queryInterface = sequelize.getQueryInterface();
+    const tableName = Cupon.getTableName();
+    const table = await queryInterface.describeTable(tableName);
+
+    if (!table.validoDesde) {
+        await queryInterface.addColumn(tableName, 'validoDesde', {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+            defaultValue: '2000-01-01'
+        });
+    }
+
+    if (!table.validoHasta) {
+        await queryInterface.addColumn(tableName, 'validoHasta', {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+            defaultValue: '2099-12-31'
+        });
+    }
+}
+
 export async function initializeDatabase() {
     // PASO 3:
     // sync() compara modelos contra la base y crea tablas faltantes.
@@ -129,10 +152,11 @@ export async function initializeDatabase() {
     await ensureProductValidityColumns();
     await ensureUsuarioColumns();
     await ensureCategoryColumns();
+    await ensureCouponColumns();
 
     // PASO 5:
     // cargamos seed inicial (si corresponde) desde módulo separado.
-    await seedDatabase({ Categoria, Producto, Usuario });
+    await seedDatabase({ Categoria, Producto, Usuario, Cupon });
 }
 
 // module.exports devuelve un objeto con varias piezas del módulo:
@@ -143,5 +167,6 @@ export {
     sequelize,
     Categoria,
     Producto,
-    Usuario
+    Usuario,
+    Cupon
 };

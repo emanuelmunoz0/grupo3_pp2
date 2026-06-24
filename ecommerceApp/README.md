@@ -1,34 +1,32 @@
 # EcommerceApp
 
-EcommerceApp es una aplicacion full stack con frontend estatico y backend en Node.js, Express, Sequelize y SQLite.
-Incluye autenticacion con JWT, catalogo publico, panel de administracion, gestion de productos y categorias, y carga automatica de datos iniciales.
+EcommerceApp es una aplicación full stack con frontend estático y backend en Node.js, Express, Sequelize y SQLite.
+El backend expone un API REST, manejando productos, categorías, usuarios, órdenes, detalles de órdenes, carritos y cupones.
 
-## Resumen rapido
+## Resumen rápido
 
 - Frontend: `frontend/`
 - Backend: `backend/`
 - Servidor local: `http://localhost:3000`
 - Base de datos: SQLite
-- Autenticacion: JWT
+- Autenticación: JWT
 
-## Caracteristicas principales
+## Características principales
 
-- Login de usuarios con rol `admin` o `client`.
-- Catalogo publico de productos con paginacion.
-- Filtro de productos por categoria desde el frontend.
-- Panel de administracion separado en `admin.html`.
-- Edicion en tabla de productos y categorias.
-- Filtro avanzado de publicaciones en el panel admin.
-- Posibilidad de ocultar una categoria completa y ocultar automaticamente sus productos en el catalogo publico.
-- Seed inicial con usuarios, categorias y productos de ejemplo.
+- Login con JWT y roles `admin` / `client`.
+- Catálogo público de productos con filtro por categoría.
+- Panel de administración en `admin.html`.
+- Edición de productos y categorías desde el panel admin.
+- Visibilidad de categorías y productos.
+- Seed inicial con usuarios, categorías y productos de ejemplo.
 
 ## Estructura del proyecto
 
 ```text
 ecommerceApp/
   backend/
-    server.js
     package.json
+    server.js
     src/
       config/
       controllers/
@@ -37,8 +35,8 @@ ecommerceApp/
       routes/
       utils/
   frontend/
-    index.html
     admin.html
+    index.html
     login.html
     css/
     js/
@@ -49,7 +47,7 @@ ecommerceApp/
 - Node.js 18 o superior recomendado
 - npm
 
-## Instalacion
+## Instalación
 
 Instalar dependencias desde la carpeta `backend/`:
 
@@ -70,11 +68,11 @@ JWT_SECRET=clave_local_para_desarrollo
 
 Notas:
 
-- `DB_DIALECT` debe quedar en `sqlite` para este proyecto.
+- `DB_DIALECT` debe quedar en `sqlite`.
 - `DB_STORAGE` apunta al archivo SQLite.
-- `JWT_SECRET` es recomendable para firmar tokens de forma consistente.
+- `JWT_SECRET` firma los tokens JWT.
 
-## Ejecucion
+## Ejecución
 
 Levantar el backend desde `backend/`:
 
@@ -82,15 +80,15 @@ Levantar el backend desde `backend/`:
 npm start
 ```
 
-El script usa `node --watch server.js`, por lo que reinicia el servidor al detectar cambios.
+El servidor usa `node --watch server.js`, por lo que reinicia automáticamente al detectar cambios.
 
-Una vez levantado, el frontend queda disponible en:
+Una vez iniciado, el frontend se sirve desde:
 
 - `http://localhost:3000`
 
 ## Credenciales de prueba
 
-El seed inicial crea dos usuarios listos para usar:
+El seed inicial crea al menos un administrador y un usuario cliente:
 
 ### Administrador
 
@@ -104,54 +102,38 @@ El seed inicial crea dos usuarios listos para usar:
 
 ## Comportamiento del sistema
 
-- Si no hay productos en la base, el sistema ejecuta el seed automaticamente.
-- El frontend publico muestra solo categorias visibles.
-- Si una categoria se oculta desde el panel admin, sus productos dejan de aparecer en el catalogo publico hasta que se vuelvan a mover manualmente a otra categoria o se reactive la categoria.
-- El panel admin puede ver y editar todas las categorias cuando envia su token de autenticacion.
+- La base de datos se inicializa y carga datos de ejemplo si es necesario.
+- El frontend público carga solo categorías visibles.
+- El catálogo público oculta productos con `visible: false`.
+- El filtro por categoría utiliza `id_categoria`.
+- El panel admin muestra y permite editar datos cuando se tiene token admin.
 
 ## Frontend
 
 ### `index.html`
 
-- Catalogo de productos.
-- Boton de filtro por categoria.
-- Boton de carrito.
-- Boton de acceso al panel admin si el usuario tiene rol administrador.
+- Catálogo público de productos.
+- Filtro por categoría.
+- Carrito de compras.
+- Acceso a panel admin si el usuario es administrador.
 
 ### `admin.html`
 
-- Selector entre publicaciones y categorias.
-- Edicion de productos en tabla.
-- Edicion de categorias en tabla.
-- Cambio de visibilidad de categorias.
-- Filtros avanzados para publicaciones.
+- Panel de administración para productos y categorías.
+- Filtros avanzados de productos.
+- Creación y actualización de categorías.
+
+### `login.html`
+
+- Formulario de inicio de sesión.
 
 ## API principal
 
-### Autenticacion
+### Autenticación
 
 - `POST /api/auth/login`
-
-### Productos
-
-- `GET /api/productos`
-- `GET /api/productos/:id`
-- `GET /api/admin/productos`
-- `POST /api/productos`
-- `PUT /api/productos/:id`
-- `DELETE /api/productos/:id`
-
-Filtro publico por categoria:
-
-- `GET /api/productos?id_categoria=1`
-
-### Categorias
-
-- `GET /api/categorias`
-- `GET /api/categorias/:id`
-- `POST /api/categorias`
-- `PUT /api/categorias/:id`
-- `DELETE /api/categorias/:id`
+  - Body: `{ email, password }`
+  - Respuesta: token JWT y datos del usuario.
 
 ### Usuarios
 
@@ -160,43 +142,74 @@ Filtro publico por categoria:
 - `PUT /api/usuarios/:id`
 - `DELETE /api/usuarios/:id`
 
-### Ordenes
+### Productos
 
-- `GET /api/ordenes/`
+- `GET /api/productos`
+- `GET /api/productos/:id`
+- `GET /api/admin/productos` (admin)
+- `POST /api/productos` (admin)
+- `PUT /api/productos/:id` (admin)
+- `DELETE /api/productos/:id` (admin)
+
+Filtro público por categoría:
+
+- `GET /api/productos?id_categoria=<id>`
+
+### Categorías
+
+- `GET /api/categorias`
+- `GET /api/categorias/:id`
+- `POST /api/categorias` (admin)
+- `PUT /api/categorias/:id` (admin)
+- `DELETE /api/categorias/:id` (admin)
+
+### Órdenes
+
+- `GET /api/ordenes`
 - `GET /api/ordenes/:id`
-- `POST /api/ordenes/`
+- `POST /api/ordenes`
 - `PUT /api/ordenes/:id`
 - `DELETE /api/ordenes/:id`
 
-### Detalle de ordenes
+### Detalle de órdenes
 
-- `GET /api/detalles/`
+- `GET /api/detalles`
 - `GET /api/detalles/:id`
-- `POST /api/detalles/`
+- `POST /api/detalles`
 - `PUT /api/detalles/:id`
 - `DELETE /api/detalles/:id`
 
 ### Carrito
 
-- `GET /api/carrito/`
+- `GET /api/carrito`
 - `GET /api/carrito/:id`
-- `POST /api/carrito/`
+- `POST /api/carrito`
 - `PUT /api/carrito/:id`
 - `DELETE /api/carrito/:id`
 
 ### Cupones
 
-- `GET /api/cupon/`
+- `GET /api/cupon`
 - `GET /api/cupon/:id`
-- `POST /api/cupon/`
+- `POST /api/cupon`
 - `PUT /api/cupon/:id`
 - `DELETE /api/cupon/:id`
 
 ### Checkout
 
 - `POST /api/checkout`
+  - Método de ejemplo que recibe el carrito y devuelve un mensaje de confirmación.
 
 ## Modelos relevantes
+
+- `Producto`: nombre, precio, stock, descuento, porcentajeDescuento, visible, image, id_categoria, validoDesde, validoHasta
+- `Categoria`: id_categoria, nombre, visible
+- `Usuario`: nombre, email, password, es_corporativo, role, orden_compra
+- `OrdenCompra`: id_orden, usuario_id, cupon_id, total, fecha_compra, estado_compra
+- `DetalleOrden`: id_detalle, id_orden, producto_id, cantidad, precio_unitario
+- `Carrito`: id_carrito, usuario
+- `Cupon`: id_cupon, nombre, descuento, fecha_vencimiento, activo
+- `Envio`: estado, fecha
 
 ### Usuario
 
