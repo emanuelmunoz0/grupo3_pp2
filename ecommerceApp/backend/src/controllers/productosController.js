@@ -1,16 +1,159 @@
-import productosDb from "../../database/products_db.js";
 import Producto from "../models/Producto.js";
 import Categoria from "../models/Categoria.js";
+import { verifyToken } from "../utils/jwt.js";
 
+function parsePositiveInteger(value) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function buildPagination(page, limit, total) {
+  return {
+    page,
+    limit,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / limit)),
+  };
+}
+
+function isAdminRequest(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return false;
+  }
+
+  try {
+    const token = authHeader.split(" ")[1];
+    const payload = verifyToken(token);
+    return payload?.role === "admin";
+  } catch (error) {
+    return false;
+  }
+}
+
+function normalizeDiscountFields(body = {}, existing = null) {
+  const hasDescuentoField = Object.prototype.hasOwnProperty.call(body, "descuento");
+  const hasPercentageField = Object.prototype.hasOwnProperty.call(
+    body,
+    "porcentajeDescuento",
+  );
+
+  const descuentoSource = hasDescuentoField
+    ? body.descuento
+    : existing?.descuento ?? false;
+
+  const descuento =
+    descuentoSource === true ||
+    descuentoSource === "true" ||
+    descuentoSource === 1 ||
+    descuentoSource === "1";
+
+  const parsedPercentage = hasPercentageField
+    ? Number(body.porcentajeDescuento)
+    : Number(existing?.porcentajeDescuento ?? 0);
+  const porcentajeDescuento = descuento ? parsedPercentage : 0;
+
+  if (descuento) {
+    if (!Number.isFinite(parsedPercentage) || parsedPercentage < 1) {
+      throw new Error(
+        "Si el descuento está activo, el porcentaje debe ser como mínimo 1%.",
+      );
+    }
+
+    if (parsedPercentage > 100) {
+      throw new Error("El descuento no puede ser mayor a 100%.");
+    }
+  }
+
+  return {
+    descuento,
+    porcentajeDescuento,
+  };
+}
+
+async function resolveCategoryId(body = {}, existing = null) {
+  const hasCategoryField = Object.prototype.hasOwnProperty.call(body, "id_categoria");
+  const categorySource = hasCategoryField ? body.id_categoria : existing?.id_categoria;
+  const categoriaId = Number(categorySource);
+
+  if (!Number.isInteger(categoriaId) || categoriaId <= 0) {
+    throw new Error("Debes seleccionar una categoría válida.");
+  }
+
+  const categoria = await Categoria.findByPk(categoriaId);
+  if (!categoria) {
+    throw new Error("La categoría seleccionada no existe.");
+  }
+
+  return categoriaId;
+}
+
+async function findProducts({ where, page, limit, publicOnly = false }) {
+  const categoryInclude = {
+    model: Categoria,
+    as: "categoria",
+  };
+
+  if (publicOnly) {
+    categoryInclude.required = true;
+    categoryInclude.where = { visible: true };
+  }
+
+  const queryOptions = {
+    where,
+    include: [categoryInclude],
+    order: [["id", "ASC"]],
+  };
+
+  if (page && limit) {
+    queryOptions.limit = limit;
+    queryOptions.offset = (page - 1) * limit;
+
+    const { count, rows } = await Producto.findAndCountAll(queryOptions);
+
+    return {
+      productos: rows,
+      pagination: buildPagination(page, limit, count),
+    };
+  }
+
+  return Producto.findAll(queryOptions);
+}
 
 const productsController = {
   getAll: async (req, res) => {
     try {
-      const productos = await Producto.findAll({
-       where: { id_categoria : 2},
-       order: [['id', 'ASC']]
-    });
-      res.json(productos);
+      const where = {};
+      const categoriaId = Number(req.query.id_categoria);
+      const page = parsePositiveInteger(req.query.page);
+      const limit = parsePositiveInteger(req.query.limit);
+
+      if (Number.isInteger(categoriaId) && categoriaId > 0) {
+        where.id_categoria = categoriaId;
+      }
+
+      where.visible = true;
+
+      const resultado = await findProducts({ where, page, limit, publicOnly: true });
+      res.json(resultado);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener los productos" });
+    }
+  },
+
+  getAdminAll: async (req, res) => {
+    try {
+      const where = {};
+      const categoriaId = Number(req.query.id_categoria);
+      const page = parsePositiveInteger(req.query.page) ?? 1;
+      const limit = parsePositiveInteger(req.query.limit) ?? 10;
+
+      if (Number.isInteger(categoriaId) && categoriaId > 0) {
+        where.id_categoria = categoriaId;
+      }
+
+      const resultado = await findProducts({ where, page, limit });
+      res.json(resultado);
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los productos" });
     }
@@ -18,11 +161,25 @@ const productsController = {
 
   getById: async (req, res) => {
     try {
-      const producto = await Producto.findByPk(req.params.id); // Buscar por Primary Key (ID)
+      const producto = await Producto.findByPk(req.params.id, {
+        include: [{ model: Categoria, as: "categoria" }],
+      });
+
+      if (!producto) {
+        res.status(404).json({ error: "Producto no encontrado" });
+        return;
+      }
+
+      if (!isAdminRequest(req)) {
+        const categoriaVisible = producto.categoria?.visible !== false;
+        if (!producto.visible || !categoriaVisible) {
+          res.status(404).json({ error: "Producto no encontrado" });
+          return;
+        }
+      }
+
       if (producto) {
         res.json(producto);
-      } else {
-        res.status(404).json({ error: "Producto no encontrado" });
       }
     } catch (error) {
       res.status(500).json({ error: "Error en el servidor" });
@@ -31,30 +188,48 @@ const productsController = {
 
   create: async (req, res) => {
     try {
-      const nuevoProducto = await Producto.create(req.body); // INSERT INTO...
+      const id_categoria = await resolveCategoryId(req.body);
+      const nuevoProducto = await Producto.create({
+        ...req.body,
+        id_categoria,
+        ...normalizeDiscountFields(req.body),
+      });
+
       res
         .status(201)
         .json({ mensaje: "Creado con éxito", producto: nuevoProducto });
     } catch (error) {
-      res.status(400).json({ error: "Datos inválidos o incompletos" });
+      res.status(400).json({ error: error.message || "Datos inválidos o incompletos" });
     }
   },
 
   update: async (req, res) => {
     try {
-      // Buscamos y actualizamos en base al ID que viene en la URL (req.params.id)
-      const [actualizado] = await Producto.update(req.body, {
-        where: { id: req.params.id },
-      });
+      const existente = await Producto.findByPk(req.params.id);
+      if (!existente) {
+        res.status(404).json({ error: "No se encontró el producto a actualizar" });
+        return;
+      }
+
+      const id_categoria = await resolveCategoryId(req.body, existente);
+      const [actualizado] = await Producto.update(
+        {
+          ...req.body,
+          id_categoria,
+          ...normalizeDiscountFields(req.body, existente),
+        },
+        {
+          where: { id: req.params.id },
+        },
+      );
+
       if (actualizado) {
         res.json({ mensaje: "Producto actualizado correctamente" });
       } else {
-        res
-          .status(404)
-          .json({ error: "No se encontró el producto a actualizar" });
+        res.status(404).json({ error: "No se encontró el producto a actualizar" });
       }
     } catch (error) {
-      res.status(500).json({ error: "Error al actualizar" });
+      res.status(400).json({ error: error.message || "Error al actualizar" });
     }
   },
 
@@ -69,35 +244,7 @@ const productsController = {
     } catch (error) {
       res.status(500).json({ error: "Error al intentar eliminar" });
     }
-  }
+  },
 };
-
-// function hayStockProducto(id_producto, cantidad) {
-//   const producto = buscarProducto(id_producto);
-//   return producto && producto.stock >= cantidad;
-// }
-
-// function restarStockProducto(id_producto, cantidad) {
-//   lista_productos[id_producto].stock -= cantidad;
-// }
-
-// function agregarProducto(id_producto, cantidad, id_item) {
-//     const producto = buscarProducto(id_producto);
-//     if (producto) {
-//       if (hayStockProducto(id_producto, cantidad)) {
-//         this.ItemCarrito.push(
-//           new ItemCarrito(this.id_carrito, id_item, producto, cantidad),
-//         );
-//         restarStockProducto(id_producto, cantidad);
-//         console.log(
-//           // `✔️  El item ${producto.nombre} se agregó ${cantidad} vez/veces`,
-//         );
-//       } else {
-//         console.log(`❌ Stock insuficiente del producto ${producto.nombre}`);
-//       }
-//     } else {
-//       console.log(`No existe el producto`);
-//     }
-//   }
 
 export default productsController;

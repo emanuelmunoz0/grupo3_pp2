@@ -8,6 +8,7 @@ import OrdenCompra from './OrdenCompra.js';
 import DetalleOrden from './DetalleOrden.js';
 import Producto from './Producto.js';
 import Categoria from './Categoria.js';
+import { Cupon } from './Cupon.js';
 
 import seedDatabase from './seed.js';
 
@@ -68,6 +69,77 @@ async function ensureProductValidityColumns() {
             defaultValue: '2099-12-31'
         });
     }
+
+    if (!table.visible) {
+        await queryInterface.addColumn('Producto', 'visible', {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        });
+    }
+
+    if (!table.descuento) {
+        await queryInterface.addColumn('Producto', 'descuento', {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        });
+    }
+
+    if (!table.porcentajeDescuento) {
+        await queryInterface.addColumn('Producto', 'porcentajeDescuento', {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0
+        });
+    }
+}
+
+async function ensureUsuarioColumns() {
+    const queryInterface = sequelize.getQueryInterface();
+    const table = await queryInterface.describeTable('Usuario');
+
+    if (!table.role) {
+        await queryInterface.addColumn('Usuario', 'role', {
+            type: DataTypes.STRING,
+            defaultValue: 'client'
+        });
+    }
+}
+
+async function ensureCategoryColumns() {
+    const queryInterface = sequelize.getQueryInterface();
+    const table = await queryInterface.describeTable('Categoria');
+
+    if (!table.visible) {
+        await queryInterface.addColumn('Categoria', 'visible', {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        });
+    }
+}
+
+async function ensureCouponColumns() {
+    const queryInterface = sequelize.getQueryInterface();
+    const tableName = Cupon.getTableName();
+    const table = await queryInterface.describeTable(tableName);
+
+    if (!table.validoDesde) {
+        await queryInterface.addColumn(tableName, 'validoDesde', {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+            defaultValue: '2000-01-01'
+        });
+    }
+
+    if (!table.validoHasta) {
+        await queryInterface.addColumn(tableName, 'validoHasta', {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+            defaultValue: '2099-12-31'
+        });
+    }
 }
 
 export async function initializeDatabase() {
@@ -78,10 +150,13 @@ export async function initializeDatabase() {
     // PASO 4:
     // garantizamos vigencia en products para bases que vienen de clases previas.
     await ensureProductValidityColumns();
+    await ensureUsuarioColumns();
+    await ensureCategoryColumns();
+    await ensureCouponColumns();
 
     // PASO 5:
     // cargamos seed inicial (si corresponde) desde módulo separado.
-    await seedDatabase({ Categoria, Producto });
+    await seedDatabase({ Categoria, Producto, Usuario, Cupon });
 }
 
 // module.exports devuelve un objeto con varias piezas del módulo:
@@ -91,5 +166,7 @@ export async function initializeDatabase() {
 export {
     sequelize,
     Categoria,
-    Producto
+    Producto,
+    Usuario,
+    Cupon
 };

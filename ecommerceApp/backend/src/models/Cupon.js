@@ -12,12 +12,22 @@ const Cupon = sequelize.define('Cupon', {
     allowNull: false
   },  
   descuento: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.FLOAT,
     allowNull: false
   },
+  validoDesde: {
+    type: DataTypes.DATEONLY,
+    allowNull: false,
+    defaultValue: '2000-01-01'
+  },
+  validoHasta: {
+    type: DataTypes.DATEONLY,
+    allowNull: false,
+    defaultValue: '2099-12-31'
+  },
   fecha_vencimiento: {
-    type: DataTypes.DATE,
-    allowNull: false
+    type: DataTypes.DATEONLY,
+    allowNull: true
   },
   activo: {
     type: DataTypes.BOOLEAN,

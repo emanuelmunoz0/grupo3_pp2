@@ -10,6 +10,11 @@ const Categoria = sequelize.define('Categoria', {
   nombre: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  visible: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   }
 }, {
   tableName: 'Categoria',
