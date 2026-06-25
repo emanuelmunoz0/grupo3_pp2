@@ -2,6 +2,7 @@ import OrdenCompra from '../models/OrdenCompra.js';
 import Usuario from '../models/Usuario.js';
 import DetalleOrden from '../models/DetalleOrden.js';
 import Producto from '../models/Producto.js';
+import { Cupon } from '../models/Cupon.js';
 
 const ordenCompraController = {
 
@@ -10,11 +11,22 @@ const ordenCompraController = {
             const ordenes = await OrdenCompra.findAll({
                 include: [
                     {
-                        model: Usuario
+                        model: Usuario,
+                        as: 'usuario'
                     },
                     {
                         model: DetalleOrden,
-                        include: [Producto]
+                        as: 'detalles',
+                        include: [
+                            {
+                                model: Producto,
+                                as: 'producto'
+                            }
+                        ]
+                    },
+                    {
+                        model: Cupon,
+                        as: 'cupon'
                     }
                 ]
             });
@@ -30,11 +42,22 @@ const ordenCompraController = {
             const orden = await OrdenCompra.findByPk(req.params.id, {
                 include: [
                     {
-                        model: Usuario
+                        model: Usuario,
+                        as: 'usuario'
                     },
                     {
                         model: DetalleOrden,
-                        include: [Producto]
+                        as: 'detalles',
+                        include: [
+                            {
+                                model: Producto,
+                                as: 'producto'
+                            }
+                        ]
+                    },
+                    {
+                        model: Cupon,
+                        as: 'cupon'
                     }
                 ]
             });
@@ -46,6 +69,41 @@ const ordenCompraController = {
             res.json(orden);
         } catch (error) {
             res.status(500).json({ error: "Error en el servidor" });
+        }
+    },
+
+    getMyOrders: async (req, res) => {
+        try {
+            const usuarioId = Number(req.user?.id);
+
+            if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+                return res.status(401).json({ error: "Usuario no autenticado" });
+            }
+
+            const ordenes = await OrdenCompra.findAll({
+                where: { usuario_id: usuarioId },
+                include: [
+                    {
+                        model: DetalleOrden,
+                        as: 'detalles',
+                        include: [
+                            {
+                                model: Producto,
+                                as: 'producto'
+                            }
+                        ]
+                    },
+                    {
+                        model: Cupon,
+                        as: 'cupon'
+                    }
+                ],
+                order: [['id_orden', 'DESC']]
+            });
+
+            res.json(ordenes);
+        } catch (error) {
+            res.status(500).json({ error: "Error al consultar el historial de compras" });
         }
     },
 

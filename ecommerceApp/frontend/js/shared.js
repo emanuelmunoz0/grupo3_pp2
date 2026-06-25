@@ -166,6 +166,18 @@ export async function loginUser(email, password) {
   return data.user;
 }
 
+export async function registerUser(payload) {
+  const data = await apiRequest("/api/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return data;
+}
+
 export function logoutSession() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -257,15 +269,22 @@ export async function fetchCouponByCode(code) {
   return apiRequest(endpoint);
 }
 
-export async function checkoutCart(items) {
+export async function checkoutCart(items, couponCode = "") {
   return apiRequest("/api/checkout", {
     method: "POST",
-    headers: {
+    headers: getAuthHeaders({
       "Content-Type": "application/json",
-    },
+    }),
     body: JSON.stringify({
       items: Array.isArray(items) ? items : [],
+      couponCode,
     }),
+  });
+}
+
+export async function fetchMyOrders() {
+  return apiRequest("/api/ordenes/mis-compras", {
+    headers: getAuthHeaders(),
   });
 }
 

@@ -5,8 +5,13 @@ const userController = {
   register: async (req, res) => {
     try {
       const { nombre, email, password, role = "client" } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email y password son obligatorios" });
+      }
+
       const nuevoUsuario = await Usuario.create({
-        nombre,
+        nombre: nombre || String(email).split("@")[0] || "Usuario",
         email,
         password,
         role,

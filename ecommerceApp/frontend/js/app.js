@@ -39,6 +39,16 @@ const appState = {
 let filterModalInstance = null;
 let cartModalInstance = null;
 
+function getCheckoutRequestedFlag() {
+  return new URLSearchParams(window.location.search).get("checkout") === "1";
+}
+
+function clearCheckoutRequestedFlag() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("checkout");
+  window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+}
+
 function loadCartState() {
   const raw = localStorage.getItem(CART_STORAGE_KEY);
   if (!raw) {
@@ -291,6 +301,12 @@ async function finalizePurchase() {
     return;
   }
 
+  const user = getStoredUser();
+  if (!user || !localStorage.getItem("token")) {
+    window.location.replace("login.html?next=checkout");
+    return;
+  }
+
   const button = document.getElementById("finalize-purchase-button");
   const previousLabel = button.innerHTML;
   button.disabled = true;
@@ -298,7 +314,7 @@ async function finalizePurchase() {
     '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Procesando';
 
   try {
-    const result = await checkoutCart(getCheckoutPayloadItems());
+    const result = await checkoutCart(getCheckoutPayloadItems(), appState.appliedCoupon?.code ?? "");
     const purchasedCount = Array.isArray(result?.items) ? result.items.length : appState.cartItems.length;
     resetCartAfterCheckout();
     renderCartItems();
@@ -825,21 +841,31 @@ async function renderUI() {
   const sessionStatus = document.getElementById("session-status");
   const logoutButton = document.getElementById("logout-button");
   const adminLink = document.getElementById("admin-link");
-
-  if (!user) {
-    window.location.replace("login.html");
-    return;
-  }
+  const loginLink = document.getElementById("login-link");
+  const registerLink = document.getElementById("register-link");
+  const profileLink = document.getElementById("profile-link");
 
   catalogSection.classList.remove("d-none");
-  logoutButton.classList.remove("d-none");
-  const roleLabel = getFriendlyRoleLabel(user);
-  sessionStatus.textContent = roleLabel ? `Conectado como ${roleLabel}` : "Modo invitado";
+  if (user) {
+    logoutButton.classList.remove("d-none");
+    loginLink.classList.add("d-none");
+    registerLink.classList.add("d-none");
+    profileLink.classList.remove("d-none");
+    const roleLabel = getFriendlyRoleLabel(user);
+    sessionStatus.textContent = roleLabel ? `Conectado como ${roleLabel}` : "Conectado";
 
-  if (isAdminUser(user)) {
-    adminLink.classList.remove("d-none");
+    if (isAdminUser(user)) {
+      adminLink.classList.remove("d-none");
+    } else {
+      adminLink.classList.add("d-none");
+    }
   } else {
+    logoutButton.classList.add("d-none");
+    loginLink.classList.remove("d-none");
+    registerLink.classList.remove("d-none");
+    profileLink.classList.add("d-none");
     adminLink.classList.add("d-none");
+    sessionStatus.textContent = "Modo invitado";
   }
 
   const catalogWasRefreshedByCategoryLoad = await cargarCategorias();
@@ -849,6 +875,11 @@ async function renderUI() {
 
   await restoreCouponState();
   updateCartModalSummary();
+
+  if (user && getCheckoutRequestedFlag()) {
+    clearCheckoutRequestedFlag();
+    await finalizePurchase();
+  }
 }
 
 function handleLogout() {
