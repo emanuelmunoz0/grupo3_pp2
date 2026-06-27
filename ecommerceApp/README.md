@@ -148,23 +148,44 @@ La aplicación usa JWT para autenticación stateless:
 
 ## 📡 API REST
 
-La API utiliza endpoints REST con prefijo `/api/`:
+La API utiliza endpoints REST con prefijo `/api/`.
 
-- `/api/auth/login` - Autenticación
-- `/api/register` - Registro de usuarios
-- `/api/productos` - Catálogo de productos
-- `/api/categorias` - Gestión de categorías
-- `/api/carrito` - Operaciones del carrito
-- `/api/ordenes` - Compras y órdenes
-- `/api/cupon` - Cupones de descuento
-- `/api/usuarios` - Gestión de usuarios
-- `/api/envio` - Envíos y pagos
+### Encabezados requeridos
 
 Todos los endpoints que requieren autenticación necesitan:
-```
+
+```http
 Authorization: Bearer <JWT_TOKEN>
 Content-Type: application/json
 ```
+
+### Rutas públicas
+
+| Método | Ruta | Descripción | Cuerpo / Parámetros | Respuesta esperada |
+|--------|------|-------------|----------------------|---------------------|
+| POST | `/api/auth/login` | Inicia sesión y devuelve un token JWT. | `{ "email": "string", "password": "string" }` | `200` con `{ token, user }` |
+| POST | `/api/register` | Registra un nuevo usuario. | `{ "nombre": "string", "email": "string", "password": "string", "role": "client" }` | `201` con el usuario creado |
+| GET | `/api/productos` | Devuelve el catálogo público de productos. | Query: `page`, `limit`, `id_categoria` | `200` con lista o paginación de productos |
+| GET | `/api/productos/:id` | Obtiene un producto por su identificador. | `:id` | `200` con el producto |
+| GET | `/api/categorias` | Devuelve las categorías visibles. | Sin body | `200` con la lista de categorías |
+| GET | `/api/categorias/:id` | Obtiene una categoría por ID. | `:id` | `200` con la categoría |
+| GET | `/api/cupon` | Lista cupones disponibles. | Sin body | `200` con el listado |
+| GET | `/api/cupon/validar` | Valida un cupón por código. | Query: `codigo` | `200` con los datos del cupón |
+| GET | `/api/cupon/:id` | Obtiene un cupón por ID. | `:id` | `200` con el cupón |
+
+### Rutas protegidas
+
+| Método | Ruta | Descripción | Cuerpo / Parámetros | Respuesta esperada |
+|--------|------|-------------|----------------------|---------------------|
+| GET | `/api/admin/productos` | Devuelve el catálogo completo para administración. | Requiere rol `admin` | `200` con productos completos |
+| POST | `/api/productos` | Crea un producto nuevo. | `{ "nombre": "string", "precio": "number", "stock": "number", ... }` | `201` con el producto creado |
+| PUT | `/api/productos/:id` | Actualiza un producto existente. | `:id` + campos a modificar | `200` con el producto actualizado |
+| DELETE | `/api/productos/:id` | Elimina un producto. | `:id` | `200` o `204` según implementación |
+| POST | `/api/categorias` | Crea una categoría. | `{ "nombre": "string", "visible": "boolean" }` | `201` con la categoría |
+| PUT | `/api/categorias/:id` | Actualiza una categoría. | `:id` + campos a modificar | `200` con la categoría modificada |
+| DELETE | `/api/categorias/:id` | Elimina una categoría. | `:id` | `200` con confirmación |
+| GET | `/api/ordenes/mis-compras` | Devuelve el historial de compras del usuario autenticado. | Requiere usuario autenticado | `200` con la lista de órdenes |
+| POST | `/api/checkout` | Finaliza una compra a partir del carrito. | `{ "items": [{ "productId": 1, "quantity": 2 }], "couponCode": "CUPON10" }` | `200` con resumen de la compra |
 
 ## 🧪 Credenciales de Prueba
 
