@@ -38,6 +38,7 @@ const appState = {
 
 let filterModalInstance = null;
 let cartModalInstance = null;
+let purchaseSuccessModalInstance = null;
 
 function getCheckoutRequestedFlag() {
   return new URLSearchParams(window.location.search).get("checkout") === "1";
@@ -235,6 +236,59 @@ function clearAppliedCoupon({ silent = false } = {}) {
   }
 }
 
+function showPurchaseSuccessModal(result = {}) {
+  const modalElement = document.getElementById("purchaseSuccessModal");
+  const orderIdElement = document.getElementById("purchase-success-order-id");
+  const subtotalElement = document.getElementById("purchase-success-subtotal");
+  const discountElement = document.getElementById("purchase-success-discount");
+  const discountRowElement = document.getElementById("purchase-success-discount-row");
+  const totalElement = document.getElementById("purchase-success-total");
+  const itemsListElement = document.getElementById("purchase-success-items-list");
+
+  if (
+    !modalElement ||
+    !orderIdElement ||
+    !subtotalElement ||
+    !discountElement ||
+    !discountRowElement ||
+    !totalElement ||
+    !itemsListElement
+  ) {
+    return;
+  }
+
+  const subtotal = Number(result?.subtotal ?? 0);
+  const total = Number(result?.total ?? 0);
+  const discount = Math.max(0, subtotal - total);
+  const items = Array.isArray(result?.items) ? result.items : [];
+
+  orderIdElement.textContent = result?.orderId ? `#${result.orderId}` : "—";
+  subtotalElement.textContent = formatArsCurrency(subtotal);
+  discountElement.textContent = discount > 0 ? `-${formatArsCurrency(discount)}` : "$0,00";
+  discountRowElement.classList.toggle("d-none", discount <= 0);
+  totalElement.textContent = formatArsCurrency(total);
+  itemsListElement.innerHTML = items.length
+    ? items
+        .map(
+          (item) => `
+            <li class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-center gap-3">
+                <span>Producto #${item?.productId ?? "—"}</span>
+                <span class="fw-semibold">x${item?.quantity ?? 0}</span>
+              </div>
+            </li>
+          `,
+        )
+        .join("")
+    : '<li class="list-group-item px-0 text-muted">No se registraron ítems adicionales.</li>';
+
+  if (!purchaseSuccessModalInstance) {
+    purchaseSuccessModalInstance = new bootstrap.Modal(modalElement);
+  }
+
+  purchaseSuccessModalInstance.show();
+}
+
 function getCheckoutPayloadItems() {
   return appState.cartItems.map((item) => ({
     productId: Number(item.product.id),
@@ -325,6 +379,7 @@ async function finalizePurchase() {
       action: "checkout",
       purchasedCount,
     });
+    showPurchaseSuccessModal(result);
     setCouponFeedback("", "muted");
   } catch (error) {
     updateCartModalSummary();
