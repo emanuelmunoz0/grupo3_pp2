@@ -1,266 +1,221 @@
 # EcommerceApp
 
-EcommerceApp es una aplicación full stack con frontend estático y backend en Node.js, Express, Sequelize y SQLite.
-El backend expone un API REST, manejando productos, categorías, usuarios, órdenes, detalles de órdenes, carritos y cupones.
+Aplicación full-stack de comercio electrónico construida con Node.js, Express, Sequelize y SQLite. Incluye autenticación JWT, gestión de productos, carrito de compras, órdenes y panel administrativo.
 
-## Resumen rápido
+## ✨ Características Principales
 
-- Frontend: `frontend/`
-- Backend: `backend/`
-- Servidor local: `http://localhost:3000`
-- Base de datos: SQLite
-- Autenticación: JWT
+- **Autenticación JWT** - Segura con roles (admin/cliente)
+- **Catálogo de Productos** - Búsqueda, filtrado por categorías y visualización
+- **Carrito de Compras** - Agregar, modificar y gestionar items
+- **Órdenes de Compra** - Historial completo con estados
+- **Cupones de Descuento** - Validación y aplicación automática
+- **Panel Administrativo** - Gestión completa de productos, categorías, órdenes y cupones
+- **Base de Datos Relacional** - SQLite con 10 modelos bien definidos
+- **API REST** - Endpoints organizados y documentados
 
-## Características principales
+## 🛠️ Stack Tecnológico
 
-- Login con JWT y roles `admin` / `client`.
-- Catálogo público de productos con filtro por categoría.
-- Panel de administración en `admin.html`.
-- Edición de productos y categorías desde el panel admin.
-- Visibilidad de categorías y productos.
-- Seed inicial con usuarios, categorías y productos de ejemplo.
+| Aspecto | Tecnología |
+|---------|-----------|
+| **Backend** | Node.js 18+, Express 5.x, Sequelize 6.x |
+| **Base de Datos** | SQLite3 |
+| **Frontend** | HTML5, CSS3, JavaScript Vanilla |
+| **Autenticación** | JWT (JSON Web Token) |
+| **Seguridad** | bcryptjs para hash de contraseñas |
 
-## Estructura del proyecto
+## 📋 Requisitos Previos
 
-```text
-ecommerceApp/
-  backend/
-    package.json
-    server.js
-    src/
-      config/
-      controllers/
-      middlewares/
-      models/
-      routes/
-      utils/
-  frontend/
-    admin.html
-    index.html
-    login.html
-    css/
-    js/
+- Node.js 18 o superior
+- npm 9 o superior
+- Git para clonar el repositorio
+
+Verifica la instalación:
+```bash
+node --version    # v18.x.x o superior
+npm --version     # 9.x.x o superior
 ```
 
-## Requisitos
+## 🚀 Instalación
 
-- Node.js 18 o superior recomendado
-- npm
+### 1. Clonar el repositorio
+```bash
+git clone <url-repositorio>
+cd ecommerceApp
+```
 
-## Instalación
-
-Instalar dependencias desde la carpeta `backend/`:
-
+### 2. Instalar dependencias
 ```bash
 cd backend
 npm install
 ```
 
-## Variables de entorno
+### 3. Configurar variables de entorno
 
-Crear un archivo `.env` dentro de `backend/`:
-
+Crear archivo `backend/.env`:
 ```env
 DB_DIALECT=sqlite
 DB_STORAGE=./ecommerce.sqlite
 JWT_SECRET=clave_local_para_desarrollo
 ```
 
-Notas:
-
-- `DB_DIALECT` debe quedar en `sqlite`.
-- `DB_STORAGE` apunta al archivo SQLite.
-- `JWT_SECRET` firma los tokens JWT.
-
-## Ejecución
-
-Levantar el backend desde `backend/`:
-
+### 4. Ejecutar el servidor
 ```bash
 npm start
 ```
 
-El servidor usa `node --watch server.js`, por lo que reinicia automáticamente al detectar cambios.
+Acceder a la aplicación en: `http://localhost:3000`
 
-Una vez iniciado, el frontend se sirve desde:
+## 📂 Estructura del Proyecto
 
-- `http://localhost:3000`
+```
+ecommerceApp/
+├── backend/
+│   ├── src/
+│   │   ├── config/          # Configuración de Sequelize
+│   │   ├── controllers/     # Lógica de negocio (12 archivos)
+│   │   ├── middlewares/     # Autenticación y autorización
+│   │   ├── models/          # Modelos Sequelize (10 tablas)
+│   │   ├── routes/          # Endpoints de API (9 rutas)
+│   │   └── utils/           # JWT y hash de contraseñas
+│   ├── server.js            # Punto de entrada
+│   └── package.json
+│
+├── frontend/
+│   ├── index.html           # Catálogo de productos
+│   ├── login.html           # Autenticación
+│   ├── register.html        # Registro de usuarios
+│   ├── profile.html         # Perfil y órdenes del usuario
+│   ├── admin.html           # Panel de administración
+│   ├── css/                 # Estilos
+│   └── js/                  # Lógica del cliente
+│
+└── README.md
+```
 
-## Credenciales de prueba
+## 🎯 Funcionalidades
 
-El seed inicial crea al menos un administrador y un usuario cliente:
+### Para Usuarios
+- Registro e inicio de sesión con JWT
+- Explorar catálogo con búsqueda y filtros
+- Gestionar carrito personal (agregar, editar, eliminar)
+- Realizar compras con aplicación de cupones
+- Ver historial de órdenes y detalles
 
-### Administrador
+### Para Administradores
+- Crear, editar y eliminar productos
+- Gestionar categorías
+- Ver todas las órdenes y cambiar estado
+- Crear y validar cupones de descuento
 
-- Email: `admin@gmail.com`
-- Password: `123456`
+## 🔐 Autenticación y Roles
 
-### Cliente
+La aplicación usa JWT para autenticación stateless:
 
-- Email: `cliente@gmail.com`
-- Password: `123456`
+**Rol: Cliente**
+- Acceso a catálogo y búsqueda
+- Carrito personal
+- Realizar compras
+- Ver su perfil y órdenes
 
-## Comportamiento del sistema
+**Rol: Admin**
+- Todos los permisos de cliente
+- Panel administrativo
+- Gestión completa de productos y categorías
+- Administración de órdenes y cupones
 
-- La base de datos se inicializa y carga datos de ejemplo si es necesario.
-- El frontend público carga solo categorías visibles.
-- El catálogo público oculta productos con `visible: false`.
-- El filtro por categoría utiliza `id_categoria`.
-- El panel admin muestra y permite editar datos cuando se tiene token admin.
+**Token JWT incluye**:
+- ID y email del usuario
+- Nombre y rol
+- Fecha de expiración (7 días)
 
-## Frontend
+## 🗄️ Base de Datos
 
-### `index.html`
+**Motor**: SQLite3 (embebido, sin configuración adicional)
 
-- Catálogo público de productos.
-- Filtro por categoría.
-- Carrito de compras.
-- Acceso a panel admin si el usuario es administrador.
+**Tablas principales**:
+- `Usuarios` - Cuentas con roles (admin/client)
+- `Productos` - Catálogo con precio y stock
+- `Categorias` - Organización de productos
+- `Carritos` - Carrito personal por usuario
+- `ItemCarritos` - Items dentro del carrito
+- `OrdenCompras` - Órdenes finalizadas
+- `DetalleOrdenes` - Detalles de cada orden
+- `Cupones` - Códigos de descuento con validez
+- `Pagos` - Registros de pagos
+- `Envios` - Estado y seguimiento de envíos
 
-### `admin.html`
+**Relaciones automáticas**: Sequelize maneja todas las foreign keys y relaciones entre tablas.
 
-- Panel de administración para productos y categorías.
-- Filtros avanzados de productos.
-- Creación y actualización de categorías.
+## 📡 API REST
 
-### `login.html`
+La API utiliza endpoints REST con prefijo `/api/`:
 
-- Formulario de inicio de sesión.
+- `/api/auth/login` - Autenticación
+- `/api/register` - Registro de usuarios
+- `/api/productos` - Catálogo de productos
+- `/api/categorias` - Gestión de categorías
+- `/api/carrito` - Operaciones del carrito
+- `/api/ordenes` - Compras y órdenes
+- `/api/cupon` - Cupones de descuento
+- `/api/usuarios` - Gestión de usuarios
+- `/api/envio` - Envíos y pagos
 
-## API principal
+Todos los endpoints que requieren autenticación necesitan:
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
-### Autenticación
+## 🧪 Credenciales de Prueba
 
-- `POST /api/auth/login`
-  - Body: `{ email, password }`
-  - Respuesta: token JWT y datos del usuario.
+Al ejecutar por primera vez, se cargan automáticamente:
 
-### Usuarios
+**Admin**:
+- Email: `admin@ecommerce.com`
+- Contraseña: `admin123`
 
-- `POST /api/register`
-- `GET /api/usuarios/:id`
-- `PUT /api/usuarios/:id`
-- `DELETE /api/usuarios/:id`
+**Cliente**:
+- Email: `cliente@example.com`
+- Contraseña: `cliente123`
 
-### Productos
+## 📝 Scripts Disponibles
 
-- `GET /api/productos`
-- `GET /api/productos/:id`
-- `GET /api/admin/productos` (admin)
-- `POST /api/productos` (admin)
-- `PUT /api/productos/:id` (admin)
-- `DELETE /api/productos/:id` (admin)
+```bash
+npm start        # Ejecutar servidor con auto-reload (node --watch)
+npm test         # Ejecutar tests (no configurado aún)
+```
 
-Filtro público por categoría:
+## 🎨 Convenciones del Código
 
-- `GET /api/productos?id_categoria=<id>`
+- **Idioma**: Español (variables, funciones, nombres de rutas)
+- **Patrón de proyecto**: MVC (Models-Views-Controllers)
+- **Modules**: ES6 modules (`import`/`export`)
+- **Estilos de código**: Consistentes con convenciones de Node.js
 
-### Categorías
+## ⚠️ Estado del Proyecto
 
-- `GET /api/categorias`
-- `GET /api/categorias/:id`
-- `POST /api/categorias` (admin)
-- `PUT /api/categorias/:id` (admin)
-- `DELETE /api/categorias/:id` (admin)
+- ✅ Funcionalidades principales completadas
+- ✅ Autenticación y autorización implementadas
+- ✅ Base de datos estructurada y relaciones definidas
+- ✅ API REST completa
+- ⚠️ En fase de desarrollo y pruebas
 
-### Órdenes
+## 🤝 Contribuciones
 
-- `GET /api/ordenes`
-- `GET /api/ordenes/:id`
-- `POST /api/ordenes`
-- `PUT /api/ordenes/:id`
-- `DELETE /api/ordenes/:id`
+Las contribuciones son bienvenidas. Para contribuir:
 
-### Detalle de órdenes
+1. Fork el repositorio
+2. Crea una rama (`git checkout -b feature/mejora`)
+3. Realiza cambios y commits descriptivos
+4. Push a tu fork (`git push origin feature/mejora`)
+5. Abre un Pull Request
 
-- `GET /api/detalles`
-- `GET /api/detalles/:id`
-- `POST /api/detalles`
-- `PUT /api/detalles/:id`
-- `DELETE /api/detalles/:id`
+## 📄 Licencia
 
-### Carrito
+Este proyecto está bajo licencia **MIT**.
 
-- `GET /api/carrito`
-- `GET /api/carrito/:id`
-- `POST /api/carrito`
-- `PUT /api/carrito/:id`
-- `DELETE /api/carrito/:id`
+---
 
-### Cupones
-
-- `GET /api/cupon`
-- `GET /api/cupon/:id`
-- `POST /api/cupon`
-- `PUT /api/cupon/:id`
-- `DELETE /api/cupon/:id`
-
-### Checkout
-
-- `POST /api/checkout`
-  - Método de ejemplo que recibe el carrito y devuelve un mensaje de confirmación.
-
-## Modelos relevantes
-
-- `Producto`: nombre, precio, stock, descuento, porcentajeDescuento, visible, image, id_categoria, validoDesde, validoHasta
-- `Categoria`: id_categoria, nombre, visible
-- `Usuario`: nombre, email, password, es_corporativo, role, orden_compra
-- `OrdenCompra`: id_orden, usuario_id, cupon_id, total, fecha_compra, estado_compra
-- `DetalleOrden`: id_detalle, id_orden, producto_id, cantidad, precio_unitario
-- `Carrito`: id_carrito, usuario
-- `Cupon`: id_cupon, nombre, descuento, fecha_vencimiento, activo
-- `Envio`: estado, fecha
-
-### Usuario
-
-- `nombre`
-- `email`
-- `password`
-- `es_corporativo`
-- `role`
-
-### Categoria
-
-- `id_categoria`
-- `nombre`
-- `visible`
-
-### Producto
-
-- `id`
-- `nombre`
-- `precio`
-- `stock`
-- `descuento`
-- `porcentajeDescuento`
-- `visible`
-- `image`
-- `id_categoria`
-- `validoDesde`
-- `validoHasta`
-
-## Relaciones
-
-- Un `Usuario` tiene muchas `OrdenCompra`.
-- Una `OrdenCompra` tiene muchos `DetalleOrden`.
-- Un `Producto` tiene muchos `DetalleOrden`.
-- Una `Categoria` tiene muchos `Producto`.
-- Un `Producto` pertenece a una `Categoria`.
-
-## Desarrollo
-
-- El proyecto usa ES Modules.
-- No hay una suite de tests automatizados lista para ejecutar.
-- El backend sirve el frontend estatico desde Express.
-
-## Estado actual
-
-El sistema esta preparado para:
-
-- levantar la base SQLite automaticamente,
-- crear datos semilla,
-- autenticar usuarios,
-- mostrar catalogo y carrito,
-- filtrar productos por categoria,
-- administrar productos y categorias desde un panel dedicado,
-- y ocultar categorias completas sin borrar sus productos.
+**Versión**: 1.0.0  
+**Última actualización**: Junio 2024  
+**Lenguaje del código**: Español

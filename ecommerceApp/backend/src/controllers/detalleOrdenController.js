@@ -9,10 +9,12 @@ const detalleOrdenController = {
             const detalles = await DetalleOrden.findAll({
                 include: [
                     {
-                        model: Producto
+                        model: Producto,
+                        as: 'producto'
                     },
                     {
-                        model: OrdenCompra
+                        model: OrdenCompra,
+                        as: 'orden'
                     }
                 ]
             });
@@ -29,10 +31,12 @@ const detalleOrdenController = {
             const detalle = await DetalleOrden.findByPk(req.params.id, {
                 include: [
                     {
-                        model: Producto
+                        model: Producto,
+                        as: 'producto'
                     },
                     {
-                        model: OrdenCompra
+                        model: OrdenCompra,
+                        as: 'orden'
                     }
                 ]
             });

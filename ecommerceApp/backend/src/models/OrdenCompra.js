@@ -19,7 +19,7 @@ const OrdenCompra = sequelize.define('OrdenCompra', {
     },
 
     total: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.FLOAT,
         defaultValue: 0
     },
 
