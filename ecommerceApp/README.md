@@ -192,12 +192,12 @@ Content-Type: application/json
 Al ejecutar por primera vez, se cargan automáticamente:
 
 **Admin**:
-- Email: `admin@ecommerce.com`
-- Contraseña: `admin123`
+- Email: `admin@gmail.com`
+- Contraseña: `123456`
 
 **Cliente**:
-- Email: `cliente@example.com`
-- Contraseña: `cliente123`
+- Email: `cliente@gmail.com`
+- Contraseña: `123456`
 
 ## 📝 Scripts Disponibles
 
